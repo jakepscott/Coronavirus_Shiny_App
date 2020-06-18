@@ -1,3 +1,7 @@
+
+# Libraries ---------------------------------------------------------------
+
+
 library(shiny)
 library(tidyverse)
 library(lubridate)
@@ -8,7 +12,10 @@ library(ggtext)
 library(ggthemes)
 library(shinythemes)
 library(plotly)
-# Define UI for application that draws a histogram
+
+source("County_Level_Function.R")
+
+# UI ----------------------------------------------------------------------
 ui <- fluidPage(
   ##Setting Theme
   theme = shinytheme("journal"),
@@ -98,6 +105,29 @@ ui <- fluidPage(
                )
              )
     ),
+    tabPanel("County View", fluid = TRUE,
+             sidebarLayout(
+               sidebarPanel(selectInput("statenameforcounties","State", choices=state.name),
+                            uiOutput("countySelection"),
+                            selectInput("measureforcounties", "Measure", 
+                                        choices=c("New Cases", 
+                                                  "New Deaths",
+                                                  "New Cases Per 100k",
+                                                  "New Deaths Per 100k"),
+                                        selected = "New Cases"),
+                            sliderInput("RollingAverageforcounties", 
+                                        label="Window for rolling average",
+                                        min=1,
+                                        max=14,
+                                        value=7,
+                                        step=1)
+               ),
+               
+               mainPanel(
+                 plotlyOutput("plot",height=600)
+               )
+             )
+    ),
     navbarMenu("More",
                tabPanel("About Me",
                         sidebarPanel(
@@ -132,7 +162,7 @@ ui <- fluidPage(
 ))
 
 
-# Define server logic required to draw a histogram
+# Server ------------------------------------------------------------------
 server <- function(input, output) {
   ######################################################################################################
   ######Set Up Code####
@@ -847,7 +877,20 @@ server <- function(input, output) {
       }
     }
   })
+
+# County View -------------------------------------------------------------
+  output$countySelection <- renderUI({
+    counties <- US_Data %>% filter(State==input$statenameforcounties & County!="Unknown") %>% arrange(County)
+    selectInput("county", "County", choices = unique(counties$County))
+  })
   
+  output$plot <- renderPlotly({
+    req(input$statenameforcounties!="")
+    req(input$county!="")
+    ggplotly(county_graph(state = input$statenameforcounties, county = input$county,
+                          measure = input$measureforcounties, rollmean = input$RollingAverageforcounties),
+             tooltip="text")
+  })
 }
 
 # Run the application 
