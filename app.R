@@ -287,16 +287,17 @@ server <- function(input, output) {
     US_Cases_Grouped <- US_Cases_Grouped %>%
       group_by(State) %>%
       mutate(New_Cases=Cases-lag(Cases), ##New cases is today's cases minus yesterdays
-             New_Cases=rollmean(New_Cases,k = input$RollingAverage,fill = NA, align = "right")) %>% # this just gets a 7 day rolling average
+             New_Cases_Avg=rollmean(New_Cases,k = input$RollingAverage,fill = NA, align = "right")) %>% # this just gets a 7 day rolling average
       ungroup() %>%
       mutate(current_cases_per_million=(current_cases/Population)*1000000, #Making things in terms of 1 million residents
-             New_Cases_Per_Million=(New_Cases/Population)*1000000)
+             New_Cases_Per_Million=(New_Cases/Population)*1000000,
+             New_Cases_Per_Million_Avg=(New_Cases_Avg/Population)*1000000)
     
     ##Getting whether new cases are increasing or decreasing
     New_Cases_Increasing <- US_Cases_Grouped %>% 
       group_by(State) %>%
       slice(c(n(),n()-1)) %>%
-      mutate(change_in_new_cases=New_Cases_Per_Million-lead(New_Cases_Per_Million))  %>%
+      mutate(change_in_new_cases=New_Cases_Per_Million_Avg-lead(New_Cases_Per_Million_Avg))  %>%
       ungroup() %>%
       filter(!is.na(change_in_new_cases)) %>%
       mutate(Up_or_Down=case_when(change_in_new_cases>0~"Increasing",
@@ -308,7 +309,7 @@ server <- function(input, output) {
     
     if (input$PerMilNew==TRUE) {
       ##Plotting
-      ggplot(US_Cases_Grouped, aes(x=Date,y=New_Cases_Per_Million)) +
+      ggplot(US_Cases_Grouped, aes(x=Date,y=New_Cases_Per_Million_Avg)) +
         geom_line() +
         facet_geo(~abb) +
         geom_area(aes(fill=Up_or_Down)) +
@@ -334,7 +335,7 @@ server <- function(input, output) {
               strip.background.y=element_rect(color = "grey70",  fill=NA),
               plot.title.position = "plot")
     } else {
-      ggplot(US_Cases_Grouped, aes(x=Date,y=New_Cases)) +
+      ggplot(US_Cases_Grouped, aes(x=Date,y=New_Cases_Avg)) +
         geom_line() +
         facet_geo(~abb) +
         geom_area(aes(fill=Up_or_Down)) +
@@ -463,16 +464,17 @@ server <- function(input, output) {
     US_Deaths_Grouped <- US_Deaths_Grouped %>%
       group_by(State) %>%
       mutate(New_Deaths=Deaths-lag(Deaths), ##New deaths is today's deaths minus yesterdays
-             New_Deaths=rollmean(New_Deaths,k = input$RollingAverageDeaths,fill = NA, align = "right")) %>% # this just gets a 7 day rolling average
+             New_Deaths_Avg=rollmean(New_Deaths,k = input$RollingAverageDeaths,fill = NA, align = "right")) %>% # this just gets a 7 day rolling average
       ungroup() %>%
       mutate(Current_Deaths_Per_Million=(Current_Deaths/Population)*1000000, #Making things in terms of 1 million residents
-             New_Deaths_Per_Million=(New_Deaths/Population)*1000000)
+             New_Deaths_Per_Million=(New_Deaths/Population)*1000000,
+             New_Deaths_Per_Million_Avg=(New_Deaths_Avg/Population)*1000000)
     
     ##Getting whether new deaths are increasing or decreasing
     New_Deaths_Increasing <- US_Deaths_Grouped %>% 
       group_by(abb) %>%
       slice(c(n(),n()-1)) %>%
-      mutate(Change_In_New_Deaths=New_Deaths_Per_Million-lead(New_Deaths_Per_Million))  %>%
+      mutate(Change_In_New_Deaths=New_Deaths_Per_Million_Avg-lead(New_Deaths_Per_Million_Avg))  %>%
       ungroup() %>%
       filter(!is.na(Change_In_New_Deaths)) %>%
       mutate(Up_or_Down=case_when(Change_In_New_Deaths>0~"Increasing",
@@ -484,7 +486,7 @@ server <- function(input, output) {
     
     if (input$PerMilNewDeaths==TRUE) {
       ##Plotting
-      ggplot(US_Deaths_Grouped, aes(x=Date,y=New_Deaths_Per_Million)) +
+      ggplot(US_Deaths_Grouped, aes(x=Date,y=New_Deaths_Per_Million_Avg)) +
         geom_line() +
         facet_geo(~abb) +
         geom_area(aes(fill=Up_or_Down)) +
@@ -510,7 +512,7 @@ server <- function(input, output) {
               strip.background.y=element_rect(color = "grey70",  fill=NA),
               plot.title.position = "plot") 
     } else {
-       ggplot(US_Deaths_Grouped, aes(x=Date,y=New_Deaths)) +
+       ggplot(US_Deaths_Grouped, aes(x=Date,y=New_Deaths_Avg)) +
         geom_line() +
         facet_geo(~abb) +
         geom_area(aes(fill=Up_or_Down)) +
