@@ -22,7 +22,9 @@ ui <- fluidPage(
   # Application title
   titlePanel("Coronavirus in the United States"),
   navbarPage("",
-    tabPanel("New Cases", fluid = TRUE,
+
+    # UI: New Cases ---------------------------------------------------------------
+      tabPanel("New Cases", fluid = TRUE,
              sidebarLayout(
                sidebarPanel(dateRangeInput('dateRangeNew',
                                            label = 'Date range input: yyyy-mm-dd',
@@ -41,6 +43,8 @@ ui <- fluidPage(
                )
              )
     ),
+
+#  UI: New Deaths ---------------------------------------------------------
     tabPanel("New Deaths", fluid = TRUE,
              sidebarLayout(
                sidebarPanel(dateRangeInput('dateRangeNewDeaths',
@@ -60,6 +64,8 @@ ui <- fluidPage(
                )
              )
     ),
+
+#  UI: Total Cases --------------------------------------------------------
     tabPanel("Total Cases", fluid = TRUE,
              sidebarLayout(
                sidebarPanel(dateRangeInput('dateRangeTotal',
@@ -73,6 +79,8 @@ ui <- fluidPage(
                )
              )
     ),
+
+#  UI: Total Deaths -------------------------------------------------------
     tabPanel("Total Deaths", fluid = TRUE,
              sidebarLayout(
                sidebarPanel(dateRangeInput('dateRangeDeaths',
@@ -86,9 +94,11 @@ ui <- fluidPage(
                )
              )
     ),
+
+# State View -------------------------------------------------------------
     tabPanel("State View", fluid = TRUE,
              sidebarLayout(
-               sidebarPanel(selectInput("statename","State", choices=state.name),
+               sidebarPanel(selectInput("statename","State", choices=c(state.name,"District of Columbia")),
                             selectInput("measure",label = "Measure",choices = c("New Cases", "New Deaths",
                                                                                 "New Cases Per Million","New Deaths Per Million",
                                                                                 "Total Cases", "Total Deaths",
@@ -105,6 +115,8 @@ ui <- fluidPage(
                )
              )
     ),
+
+#  UI: County View --------------------------------------------------------
     tabPanel("County View", fluid = TRUE,
              sidebarLayout(
                sidebarPanel(selectInput("statenameforcounties","State", choices=state.name),
@@ -164,9 +176,8 @@ ui <- fluidPage(
 
 # Server ------------------------------------------------------------------
 server <- function(input, output) {
-  ######################################################################################################
-  ######Set Up Code####
-  ######################################################################################################
+
+# Set Up Code -------------------------------------------------------------
   State_Names <- read_rds("data/State_Names.RDS")
   county_pop_clean <- read_rds("data/county_pop_clean.RDS")
   state_pop_clean <- read_rds("data/state_pop_clean.RDS")
@@ -178,13 +189,9 @@ server <- function(input, output) {
     rename("County"=county,"State"=state, "Date"=date, "Cases"=cases,"Deaths"=deaths)
   US_Data <- US_Data %>% filter(State %in% State_Names$state | State=="District of Columbia")
   options(scipen = 999)
-  ######################################################################################################
-  ######Cases by State Plot####
-  ######################################################################################################
-  
-  #####################################
-  ####Total Cases by State####
-  #####################################
+
+
+#   Total Cases by State --------------------------------------------------
   output$cases_by_state <- renderPlot({
     ##Grouping by Date and State to see cases per day by state
     US_Cases_Grouped <- US_Data %>%
@@ -262,9 +269,8 @@ server <- function(input, output) {
     }
   })
   
-  ##############################
-  ####New Cases By State####
-  ##############################
+
+#   ####New Cases By State#### --------------------------------------------
   output$new_cases_by_state <- renderPlot({
     US_Cases_Grouped <- US_Data %>%
       arrange(Date) %>%
@@ -362,9 +368,9 @@ server <- function(input, output) {
               plot.title.position = "plot")
     }
   })
-  ######################################################################################################
-  ####Total Deaths by State Plot####
-  ######################################################################################################
+
+#   ####Total Deaths by State Plot#### ------------------------------------
+
   output$deaths_by_state <- renderPlot({
     US_Deaths_Grouped <- US_Data %>%
       arrange(Date) %>%
@@ -439,9 +445,9 @@ server <- function(input, output) {
               plot.title.position = "plot")
     }
   })
-  ###########################
-  ####New Deaths####
-  ###########################
+
+# New Deaths --------------------------------------------------------------
+
   output$new_deaths_by_state <- renderPlot({
     US_Deaths_Grouped <- US_Data %>%
       arrange(Date) %>%
@@ -540,9 +546,8 @@ server <- function(input, output) {
     }
   })
   
-  ##############################
-  ####State View####
-  ##############################
+
+# State View --------------------------------------------------------------
   output$state_view <- renderPlotly({
     entry <- input$statename
     ##Grouping by Date and State to see cases per day by state
