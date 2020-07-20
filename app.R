@@ -98,7 +98,7 @@ ui <- fluidPage(
 # State View -------------------------------------------------------------
     tabPanel("State View", fluid = TRUE,
              sidebarLayout(
-               sidebarPanel(selectInput("statename","State", choices=c(state.name,"District of Columbia")),
+               sidebarPanel(selectInput("statename","State", choices=sort(c(state.name,"District of Columbia"))),
                             selectInput("measure",label = "Measure",choices = c("New Cases", "New Deaths",
                                                                                 "New Cases Per Million","New Deaths Per Million",
                                                                                 "Total Cases", "Total Deaths",
