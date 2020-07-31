@@ -12,6 +12,7 @@ library(ggtext)
 library(ggthemes)
 library(shinythemes)
 library(plotly)
+library(shinycssloaders)
 
 source("County_Level_Function.R")
 
@@ -39,7 +40,7 @@ ui <- fluidPage(
                                         step=1)
                ),
                mainPanel(
-                 plotOutput("new_cases_by_state", height = 600)
+                 withSpinner(plotOutput("new_cases_by_state", height = 600),type = 6)
                )
              )
     ),
@@ -60,7 +61,7 @@ ui <- fluidPage(
                                         step=1)
                ),
                mainPanel(
-                 plotOutput("new_deaths_by_state", height = 600)
+                 withSpinner(plotOutput("new_deaths_by_state", height = 600),type = 6)
                )
              )
     ),
@@ -75,7 +76,7 @@ ui <- fluidPage(
                             checkboxInput("PerMil", "Per Million Residents",TRUE)
                ),
                mainPanel(
-                 plotOutput("cases_by_state", height = 600)
+                 withSpinner(plotOutput("cases_by_state", height = 600),type=6)
                )
              )
     ),
@@ -90,7 +91,7 @@ ui <- fluidPage(
                             checkboxInput("PerMilDeaths", "Per Million Residents",TRUE)
                ),
                mainPanel(
-                 plotOutput("deaths_by_state", height = 600)
+                 withSpinner(plotOutput("deaths_by_state", height = 600),type=6)
                )
              )
     ),
@@ -111,7 +112,7 @@ ui <- fluidPage(
                             
                ),
                mainPanel(
-                 plotlyOutput("state_view", height = 600)
+                 withSpinner(plotlyOutput("state_view", height = 600),type = 6)
                )
              )
     ),
@@ -136,7 +137,7 @@ ui <- fluidPage(
                ),
                
                mainPanel(
-                 plotlyOutput("plot",height=600)
+                 withSpinner(plotlyOutput("plot",height=600),type = 6)
                )
              )
     ),
