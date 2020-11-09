@@ -32,6 +32,6 @@ This app automatically downloads, cleans, and uses Coronavirus data from the New
 
 ## Author
 
-* **Jake Scott** - [Twitter](https://twitter.com/jakepscott2020), [Medium](https://medium.com/@jakepscott16)
+* **Jake Scott** - [Twitter](https://twitter.com/jakepscott2020), [Medium](https://medium.com/@jakepscott16), [LinkedIn](https://www.linkedin.com/in/jacob-scott-689875130/)
 
 
