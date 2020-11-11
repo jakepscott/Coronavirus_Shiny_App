@@ -54,9 +54,12 @@ US_Grouped <- US_Grouped %>%
   mutate(New_Cases=Cases-lag(Cases),
          New_Deaths=Deaths-lag(Deaths)) %>%  ##New cases is today's cases minus yesterdays
   ungroup() %>%
+  #setting to zero instances where new cases or new deaths are negative (usually due to reporting issues)
+  mutate(New_Cases=ifelse(New_Cases<0,0,New_Cases),
+         New_Deaths=ifelse(New_Deaths<0,0,New_Deaths)) %>% 
   #Making things in terms of 1 million residents
   mutate(New_Cases_Per_Million=(New_Cases/Population)*1000000,
-         New_Deaths_Per_Million=(New_Deaths/Population)*100000)
+         New_Deaths_Per_Million=(New_Deaths/Population)*100000) 
 
 #Making a column for whether cases are increasing or decreasing
 New_Cases_Increasing <- US_Grouped %>% 
@@ -85,3 +88,4 @@ New_Deaths_Increasing <- US_Grouped %>%
   select(State,Change_In_New_Deaths,Up_or_Down_Deaths)
 
 US_Grouped <- left_join(US_Grouped,New_Deaths_Increasing, by="State")
+
