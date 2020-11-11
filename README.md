@@ -1,5 +1,5 @@
 # Coronavirus Tracking Application
-This repo contains code for a [Shiny app](https://jake-scott.shinyapps.io/CoronaMap/) I built that, broadly speaking, can be used to explore the reach of the virus across the United States. More specifically, it provides an interactive interface through which users can look at measures such as total cases, new cases, total deaths, and new deaths on the national, state, and county level. Users can specify parameters as they see fit, including how wide the window for the rolling average is, what data range they look at, and whether measures are adjusted for population.  
+This repo contains code for a [Shiny app](https://jake-scott.shinyapps.io/Coronavirus_Shiny_App/) I built that, broadly speaking, can be used to explore the reach of the virus across the United States. More specifically, it provides an interactive interface through which users can look at measures such as total cases, new cases, total deaths, and new deaths on the national, state, and county level. Users can specify parameters as they see fit, including how wide the window for the rolling average is, what data range they look at, and whether measures are adjusted for population.  
 
 ![image](https://user-images.githubusercontent.com/56490913/88104223-2114ac00-cb70-11ea-8694-4186bffc14f3.png)
 
@@ -32,6 +32,6 @@ This app automatically downloads, cleans, and uses Coronavirus data from the New
 
 ## Author
 
-* **Jake Scott** - [Twitter](https://twitter.com/jakepscott2020), [Medium](https://medium.com/@jakepscott16)
+* **Jake Scott** - [Twitter](https://twitter.com/jakepscott2020), [Medium](https://medium.com/@jakepscott16), [LinkedIn](https://www.linkedin.com/in/jacob-scott-689875130/)
 
 
