@@ -146,8 +146,8 @@ ui <- fluidPage(
                                  sidebarPanel(
                                    img(src="ProfileImage.png", height=300,width=300),
                                    
-                                   tags$article("My name is Jake Scott. I'm a recent graduate of Colgate University and an
-                                                incoming research assistant at the Federal Reserve Board in DC. I am interested 
+                                   tags$article("My name is Jake Scott. I'm a recent graduate of Colgate University and a
+                                                research assistant at the Federal Reserve Board in DC. I am interested 
                                                 in data visualization, statistics, and economics, as well as their application 
                                                 to public policy. I can be reached at Jakepscott16@gmail.com or via social media.", style = "font-size:20px"),
                                    tags$a(
