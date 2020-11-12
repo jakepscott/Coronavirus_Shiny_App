@@ -182,8 +182,7 @@ server <- function(input, output) {
   # Total Cases by State --------------------------------------------------
   output$cases_by_state <- renderPlot({
     #Filtering data
-    total_cases_data <- US_Grouped %>% 
-      filter(Date>=input$dateRangeTotal[1] & Date<=input$dateRangeTotal[2])
+    total_cases_data <- US_Grouped
     
     ##Plotting
     if (input$PerMil==TRUE) {
@@ -194,6 +193,7 @@ server <- function(input, output) {
         scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
         scale_y_continuous(expand = c(0,0),label = comma) +
         scale_fill_viridis_c(option = "plasma", label = comma) + 
+        coord_cartesian(xlim=c(input$dateRangeTotal[1],input$dateRangeTotal[2])) +
         labs(y=NULL,
              x=NULL,
              title="Cases Per Million Residents",
@@ -219,6 +219,7 @@ server <- function(input, output) {
         scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
         scale_y_continuous(expand = c(0,0), label = comma) +
         scale_fill_viridis_c(option = "plasma", label = comma) + 
+        coord_cartesian(xlim=c(input$dateRangeTotal[1],input$dateRangeTotal[2])) +
         labs(y=NULL,
              x=NULL,
              title="Cases",
@@ -243,7 +244,6 @@ server <- function(input, output) {
   output$new_cases_by_state <- renderPlot({
     ##Getting a Rolling Average of New Cases
     new_cases_data <- US_Grouped %>%
-      filter(Date>=input$dateRangeNew[1] & Date<=input$dateRangeNew[2]) %>% 
       group_by(State) %>%
       mutate(New_Cases_Avg=rollmean(New_Cases,k = input$RollingAverage,fill = NA, align = "right")) %>% # this just gets a k day rolling average
       ungroup() %>%
@@ -258,6 +258,7 @@ server <- function(input, output) {
         scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
         scale_y_continuous(expand = c(0,0)) +
         scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
+        coord_cartesian(xlim=c(input$dateRangeNew[1],input$dateRangeNew[2])) +
         labs(y=NULL,
              x=NULL,
              fill=NULL,
@@ -284,6 +285,7 @@ server <- function(input, output) {
         scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
         scale_y_continuous(expand = c(0,0),label = comma) +
         scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
+        coord_cartesian(xlim=c(input$dateRangeNew[1],input$dateRangeNew[2])) +
         labs(y=NULL,
              x=NULL,
              fill=NULL,
@@ -309,8 +311,7 @@ server <- function(input, output) {
   
   output$deaths_by_state <- renderPlot({
     #Filtering data
-    total_deaths_data <- US_Grouped %>% 
-      filter(Date>=input$dateRangeDeaths[1] & Date<=input$dateRangeDeaths[2])
+    total_deaths_data <- US_Grouped 
     
     ##Plotting
     if (input$PerMilDeaths==TRUE) {
@@ -321,6 +322,7 @@ server <- function(input, output) {
         scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
         scale_y_continuous(expand = c(0,0),label = comma) +
         scale_fill_viridis_c(option = "plasma", label = comma) + 
+        coord_cartesian(xlim=c(input$dateRangeDeaths[1],input$dateRangeDeaths[2])) +
         labs(y=NULL,
              x=NULL,
              title="Deaths Per Million Residents",
@@ -345,6 +347,7 @@ server <- function(input, output) {
         scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
         scale_y_continuous(expand = c(0,0),label = comma) +
         scale_fill_viridis_c(option = "plasma", label = comma) + 
+        coord_cartesian(xlim=c(input$dateRangeDeaths[1],input$dateRangeDeaths[2])) +
         labs(y=NULL,
              x=NULL,
              title="Total Deaths",
@@ -369,7 +372,6 @@ server <- function(input, output) {
   output$new_deaths_by_state <- renderPlot({
     ##Getting a Rolling Average of New deaths
     new_deaths_data <- US_Grouped %>%
-      filter(Date>=input$dateRangeNewDeaths[1] & Date<=input$dateRangeNewDeaths[2]) %>% 
       group_by(State) %>%
       mutate(New_Deaths_Avg=rollmean(New_Deaths,k = input$RollingAverageDeaths,fill = NA, align = "right")) %>% # this just gets a 7 day rolling average
       ungroup() %>%
@@ -384,6 +386,7 @@ server <- function(input, output) {
         scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
         scale_y_continuous(expand = c(0,0),label = comma) +
         scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
+        coord_cartesian(xlim=c(input$dateRangeNewDeaths[1],input$dateRangeNewDeaths[2])) +
         labs(y=NULL,
              x=NULL,
              fill=NULL,
@@ -410,6 +413,7 @@ server <- function(input, output) {
         scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
         scale_y_continuous(expand = c(0,0),label = comma) +
         scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
+        coord_cartesian(xlim=c(input$dateRangeNewDeaths[1],input$dateRangeNewDeaths[2])) +
         labs(y=NULL,
              x=NULL,
              fill=NULL,
@@ -438,8 +442,7 @@ server <- function(input, output) {
     #Filtering just the state of interest
     State_Data <- US_Grouped %>%
       select(-Up_or_Down,-Up_or_Down_Deaths) %>% ##Don't want these because it is the same for all entries. For state view I want it colored by day
-      filter(State==input$statename) %>% 
-      filter(Date>=input$dateRangeStateView[1] & Date<=input$dateRangeStateView[2]) 
+      filter(State==input$statename)
     
     #Getting rolling average of cases and deaths
     State_Data <- State_Data %>%
@@ -504,6 +507,7 @@ server <- function(input, output) {
           scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
           scale_y_continuous(expand = c(0,0),label = comma) +
           scale_fill_viridis_c(option = "plasma", label = comma) + 
+          coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
           labs(y=NULL,
                x=NULL,
                title=paste("Cumulative Cases Per Million Residents in", entry, sep=" "),
@@ -528,6 +532,7 @@ server <- function(input, output) {
             scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
             scale_y_continuous(expand = c(0,0),label=comma) +
             scale_fill_viridis_c(option = "plasma", label = comma) + 
+            coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
             labs(y=NULL,
                  x=NULL,
                  title=paste("Cumulative Cases in", entry, sep=" "),
@@ -552,6 +557,7 @@ server <- function(input, output) {
               scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
               scale_y_continuous(expand = c(0,0),label=comma) +
               scale_fill_viridis_c(option = "plasma", label = comma) + 
+              coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
               labs(y=NULL,
                    x=NULL,
                    title=paste("Cumulative Deaths in", entry, sep=" "),
@@ -576,6 +582,7 @@ server <- function(input, output) {
                 scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
                 scale_y_continuous(expand = c(0,0),label=comma) +
                 scale_fill_viridis_c(option = "plasma", label = comma) + 
+                coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
                 labs(y=NULL,
                      x=NULL,
                      title=paste("Deaths Per Million Residents in", entry, sep=" "),
@@ -599,6 +606,7 @@ server <- function(input, output) {
                          scale_y_continuous(expand = c(0,0),label = comma) +
                          scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
                          scale_color_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
+                         coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
                          labs(y=NULL,
                               x=NULL,
                               fill=NULL,
@@ -625,6 +633,7 @@ server <- function(input, output) {
                            scale_y_continuous(expand = c(0,0),label = comma) +
                            scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
                            scale_color_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
+                           coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
                            labs(y=NULL,
                                 x=NULL,
                                 fill=NULL,
@@ -651,6 +660,7 @@ server <- function(input, output) {
                              scale_y_continuous(expand = c(0,0),label = comma) +
                              scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
                              scale_color_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
+                             coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
                              labs(y=NULL,
                                   x=NULL,
                                   fill=NULL,
@@ -677,6 +687,7 @@ server <- function(input, output) {
                                scale_y_continuous(expand = c(0,0),label = comma) +
                                scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
                                scale_color_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
+                               coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
                                labs(y=NULL,
                                     x=NULL,
                                     fill=NULL,
