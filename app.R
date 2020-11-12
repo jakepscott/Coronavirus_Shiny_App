@@ -21,8 +21,7 @@ ui <- fluidPage(
   ##Setting Theme
   theme = shinytheme("journal"),
   # Application title
-  titlePanel("Coronavirus in the United States"),
-  navbarPage("",
+  navbarPage("Coronavirus in the United States", theme = shinytheme("lumen"),
              
              # UI: New Cases ---------------------------------------------------------------
              tabPanel("New Cases", fluid = TRUE,
@@ -141,15 +140,16 @@ ui <- fluidPage(
                         )
                       )
              ),
-             navbarMenu("More",
+             navbarMenu("More",icon = icon("info-circle"),
                         tabPanel("About Me",
-                                 sidebarPanel(
-                                   img(src="ProfileImage.png", height=300,width=300),
-                                   
+                                 HTML('<center><img src="ProfileImage.png" width="300" height="300"></center>'),
+                                   tags$br(),
+                                   tags$br(),
                                    tags$article("My name is Jake Scott. I'm a recent graduate of Colgate University and a
                                                 research assistant at the Federal Reserve Board in DC. I am interested 
                                                 in data visualization, statistics, and economics, as well as their application 
-                                                to public policy. I can be reached at Jakepscott16@gmail.com or via social media.", style = "font-size:20px"),
+                                                to public policy. I can be reached at Jakepscott16@gmail.com or via social media.", 
+                                                style = "font-size:30px"),
                                    tags$a(
                                      href="https://twitter.com/jakepscott2020", 
                                      tags$img(src="twitter.png", 
@@ -164,7 +164,7 @@ ui <- fluidPage(
                                               width="38",
                                               height="38")
                                    )
-                                   )),
+                                   ),
                         tabPanel("About the Data",
                                  sidebarPanel(
                                    tags$article("The data used in these figures comes from the New York Times, which is collecting and publically sharing Coronavirus 
