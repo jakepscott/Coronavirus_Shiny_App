@@ -29,7 +29,7 @@ ui <- fluidPage(
                       sidebarLayout(
                         sidebarPanel(dateRangeInput('dateRangeNew',
                                                     label = 'Date range input: yyyy-mm-dd',
-                                                    start = "2020-01-22", end = Sys.Date()-1,
+                                                    start = "2020-03-10", end = Sys.Date()-1,
                                                     min = "2020-01-22", max = Sys.Date()-1),
                                      checkboxInput("PerMilNew", "Per Million Residents",TRUE),
                                      sliderInput("RollingAverage", 
@@ -50,7 +50,7 @@ ui <- fluidPage(
                       sidebarLayout(
                         sidebarPanel(dateRangeInput('dateRangeNewDeaths',
                                                     label = 'Date range input: yyyy-mm-dd',
-                                                    start = "2020-01-22", end = Sys.Date()-1,
+                                                    start = "2020-03-10", end = Sys.Date()-1,
                                                     min = "2020-01-22", max = Sys.Date()-1),
                                      checkboxInput("PerMilNewDeaths", "Per Million Residents",TRUE),
                                      sliderInput("RollingAverageDeaths", 
@@ -71,7 +71,7 @@ ui <- fluidPage(
                       sidebarLayout(
                         sidebarPanel(dateRangeInput('dateRangeTotal',
                                                     label = 'Date range input: yyyy-mm-dd',
-                                                    start = "2020-01-22", end = Sys.Date()-1,
+                                                    start = "2020-03-10", end = Sys.Date()-1,
                                                     min = "2020-01-22", max = Sys.Date()-1),
                                      checkboxInput("PerMil", "Per Million Residents",TRUE)
                         ),
@@ -86,7 +86,7 @@ ui <- fluidPage(
                       sidebarLayout(
                         sidebarPanel(dateRangeInput('dateRangeDeaths',
                                                     label = 'Date range input: yyyy-mm-dd',
-                                                    start = "2020-01-22", end = Sys.Date()-1,
+                                                    start = "2020-03-10", end = Sys.Date()-1,
                                                     min = "2020-01-22", max = Sys.Date()-1),
                                      checkboxInput("PerMilDeaths", "Per Million Residents",TRUE)
                         ),
