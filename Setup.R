@@ -59,7 +59,7 @@ US_Grouped <- US_Grouped %>%
          New_Deaths=ifelse(New_Deaths<0,0,New_Deaths)) %>% 
   #Making things in terms of 1 million residents
   mutate(New_Cases_Per_Million=(New_Cases/Population)*1000000,
-         New_Deaths_Per_Million=(New_Deaths/Population)*100000) 
+         New_Deaths_Per_Million=(New_Deaths/Population)*1000000) 
 
 #Making a column for whether cases are increasing or decreasing
 New_Cases_Increasing <- US_Grouped %>% 

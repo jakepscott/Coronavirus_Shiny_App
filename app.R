@@ -15,6 +15,7 @@ library(plotly)
 library(shinycssloaders)
 
 source("County_Level_Function.R")
+source("Setup.R")
 
 
 # Setting Theme for Graphs ------------------------------------------------
@@ -214,7 +215,6 @@ ui <- fluidPage(
 
 # Server ------------------------------------------------------------------
 server <- function(input, output) {
-  source("Setup.R")
   
   # Total Cases by State --------------------------------------------------
   output$cases_by_state <- renderPlot({
