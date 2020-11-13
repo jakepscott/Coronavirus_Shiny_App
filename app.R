@@ -43,6 +43,15 @@ new_facet_theme <- theme(panel.grid = element_blank(),
                          strip.background.y=element_rect(color = "grey70",  fill=NA),
                          plot.title.position = "plot")
 
+state_view_theme <- theme(panel.grid = element_blank(),
+                          plot.title = element_text(face = "bold", size = rel(1.2)),
+                          plot.caption = element_text(face = "italic", size = rel(0.8), 
+                                                      color = "grey70"),
+                          axis.text.x = element_text(size=rel(.8)),
+                          axis.text.y = element_text(size=rel(.8)),
+                          legend.position = "none",
+                          plot.title.position = "plot")
+
 
 # UI ----------------------------------------------------------------------
 ui <- fluidPage(
@@ -464,14 +473,7 @@ server <- function(input, output) {
                title=paste("Cumulative Cases Per Million Residents in", entry, sep=" "),
                caption = "Plot: @jakepscott2020 | Data: New York Times") +
           theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-          theme(panel.grid = element_blank(),
-                plot.title = element_text(face = "bold", size = rel(1.2)),
-                plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                            color = "grey70"),
-                axis.text.x = element_text(size=rel(.8)),
-                axis.text.y = element_text(size=rel(.8)),
-                legend.position = "none",
-                plot.title.position = "plot"),
+          state_view_theme,
         tooltip="text") 
     } else {
       if (input$measure=="Total Cases") {
@@ -489,14 +491,7 @@ server <- function(input, output) {
                  title=paste("Cumulative Cases in", entry, sep=" "),
                  caption = "Plot: @jakepscott2020 | Data: New York Times") +
             theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-            theme(panel.grid = element_blank(),
-                  plot.title = element_text(face = "bold", size = rel(1.2)),
-                  plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                              color = "grey70"),
-                  axis.text.x = element_text(size=rel(.8)),
-                  axis.text.y = element_text(size=rel(.8)),
-                  legend.position = "none",
-                  plot.title.position = "plot"),
+            state_view_theme,
           tooltip="text")
       } else {
         if (input$measure=="Total Deaths") {
@@ -514,14 +509,7 @@ server <- function(input, output) {
                    title=paste("Cumulative Deaths in", entry, sep=" "),
                    caption = "Plot: @jakepscott2020 | Data: New York Times") +
               theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-              theme(panel.grid = element_blank(),
-                    plot.title = element_text(face = "bold", size = rel(1.2)),
-                    plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                                color = "grey70"),
-                    axis.text.x = element_text(size=rel(.8)),
-                    axis.text.y = element_text(size=rel(.8)),
-                    legend.position = "none",
-                    plot.title.position = "plot"),
+              state_view_theme,
             tooltip="text")
         } else {
           if (input$measure=="Total Deaths Per Million") {
@@ -539,14 +527,7 @@ server <- function(input, output) {
                      title=paste("Deaths Per Million Residents in", entry, sep=" "),
                      caption = "Plot: @jakepscott2020 | Data: New York Times") +
                 theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-                theme(panel.grid = element_blank(),
-                      plot.title = element_text(face = "bold", size = rel(1.2)),
-                      plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                                  color = "grey70"),
-                      axis.text.x = element_text(size=rel(.8)),
-                      axis.text.y = element_text(size=rel(.8)),
-                      legend.position = "none",
-                      plot.title.position = "plot"),
+                state_view_theme,
               tooltip="text")
           } else {
             if (input$measure=="New Cases") {
@@ -565,15 +546,7 @@ server <- function(input, output) {
                               subtitle = "7 day rolling average of new cases",
                               caption = "Plot: @jakepscott2020 | Data: New York Times") +
                          theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-                         theme(panel.grid = element_blank(),
-                               plot.title = element_text(face = "bold", size = rel(1.2)),
-                               plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
-                               plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                                           color = "grey70"),
-                               legend.position = "none",
-                               axis.text.x = element_text(size=rel(.8)),
-                               axis.text.y = element_text(size=rel(.8)),
-                               plot.title.position = "plot"),
+                         state_view_theme,
                        tooltip = "text")
             } else {
               if (input$measure=="New Cases Per Million") {
@@ -592,15 +565,7 @@ server <- function(input, output) {
                                 subtitle = "7 day rolling average of new cases",
                                 caption = "Plot: @jakepscott2020 | Data: New York Times") +
                            theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-                           theme(panel.grid = element_blank(),
-                                 plot.title = element_text(face = "bold", size = rel(1.2)),
-                                 plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
-                                 plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                                             color = "grey70"),
-                                 legend.position = "none",
-                                 axis.text.x = element_text(size=rel(.8)),
-                                 axis.text.y = element_text(size=rel(.8)),
-                                 plot.title.position = "plot"),
+                           state_view_theme,
                          tooltip = "text")
               } else {
                 if (input$measure=="New Deaths Per Million") {
@@ -619,15 +584,7 @@ server <- function(input, output) {
                                   subtitle = "7 day rolling average of new deaths per million residents",
                                   caption = "Plot: @jakepscott2020 | Data: New York Times") +
                              theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-                             theme(panel.grid = element_blank(),
-                                   plot.title = element_text(face = "bold", size = rel(1.2)),
-                                   plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
-                                   plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                                               color = "grey70"),
-                                   legend.position = "none",
-                                   axis.text.x = element_text(size=rel(.8)),
-                                   axis.text.y = element_text(size=rel(.8)),
-                                   plot.title.position = "plot"),
+                             state_view_theme,
                            tooltip = "text")
                 } else {
                   if (input$measure=="New Deaths") {
@@ -646,15 +603,7 @@ server <- function(input, output) {
                                     subtitle = "7 day rolling average of new deaths",
                                     caption = "Plot: @jakepscott2020 | Data: New York Times") +
                                theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-                               theme(panel.grid = element_blank(),
-                                     plot.title = element_text(face = "bold", size = rel(1.2)),
-                                     plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
-                                     plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                                                 color = "grey70"),
-                                     legend.position = "none",
-                                     axis.text.x = element_text(size=rel(.8)),
-                                     axis.text.y = element_text(size=rel(.8)),
-                                     plot.title.position = "plot"),
+                               state_view_theme,
                              tooltip = "text")
                   }
                 }
