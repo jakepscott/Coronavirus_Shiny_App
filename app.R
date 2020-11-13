@@ -16,6 +16,34 @@ library(shinycssloaders)
 
 source("County_Level_Function.R")
 
+
+# Setting Theme for Graphs ------------------------------------------------
+#Theme for facets
+total_facet_theme <- theme(panel.grid = element_blank(),
+                     plot.title = element_text(face = "bold", size = rel(2)),
+                     plot.caption = element_text(face = "italic", size = rel(0.8), 
+                                                 color = "grey70"),
+                     plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
+                     axis.text.x = element_text(size=rel(.9)),
+                     axis.text.y = element_text(size=rel(.9)),
+                     legend.title = element_text(size = rel(.9), face="bold"),
+                     legend.position = "none",
+                     strip.text = element_text(size=rel(.6), margin = margin(.05,0,.05,0, "cm")),
+                     strip.background.y=element_rect(color = "grey70",  fill=NA),
+                     plot.title.position = "plot")
+
+new_facet_theme <- theme(panel.grid = element_blank(),
+                         plot.title = element_markdown(face = "bold", size = rel(1.2)),
+                         plot.caption = element_text(face = "italic", size = rel(0.8), 
+                                                     color = "grey70"),
+                         legend.position = "none",
+                         axis.text.x = element_text(size=rel(.9)),
+                         axis.text.y = element_text(size=rel(.9)),
+                         strip.text = element_text(size=rel(.6), margin = margin(.05,0,.05,0, "cm")),
+                         strip.background.y=element_rect(color = "grey70",  fill=NA),
+                         plot.title.position = "plot")
+
+
 # UI ----------------------------------------------------------------------
 ui <- fluidPage(
   ##Setting Theme
@@ -199,18 +227,8 @@ server <- function(input, output) {
              title="Cases Per Million Residents",
              caption = "Plot: @jakepscott2020 | Data: New York Times") +
         theme_bw(base_size = 16) +
-        theme(panel.grid = element_blank(),
-              plot.title = element_text(face = "bold", size = rel(1.2)),
-              plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
-              plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                          color = "grey70"),
-              axis.text.x = element_text(size=rel(.6)),
-              axis.text.y = element_text(size=rel(.6)),
-              legend.title = element_text(size = rel(.6), face="bold"),
-              legend.position = "none",
-              strip.text = element_text(size=rel(.6), margin = margin(.05,0,.05,0, "cm")),
-              strip.background.y=element_rect(color = "grey70",  fill=NA),
-              plot.title.position = "plot")
+        total_facet_theme
+        
     } else {
       ggplot(total_cases_data, aes(x=Date,y=Cases)) +
         geom_line() +
@@ -225,17 +243,7 @@ server <- function(input, output) {
              title="Cases",
              caption = "Plot: @jakepscott2020 | Data: New York Times") +
         theme_bw(base_size = 16) +
-        theme(panel.grid = element_blank(),
-              plot.title = element_text(face = "bold", size = rel(1.2)),
-              plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
-              plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                          color = "grey70"),
-              axis.text.x = element_text(size=rel(.6)),
-              axis.text.y = element_text(size=rel(.6)),
-              legend.position = "none",
-              strip.text = element_text(size=rel(.6), margin = margin(.05,0,.05,0, "cm")),
-              strip.background.y=element_rect(color = "grey70",  fill=NA),
-              plot.title.position = "plot")
+        total_facet_theme
     }
   })
   
@@ -266,17 +274,7 @@ server <- function(input, output) {
              title = "Which states are seeing new cases <span style='color: #91cf60'>**fall**</span> versus <span style='color: red'>**rise**</span>",
              caption = "Plot: @jakepscott2020 | Data: New York Times") +
         theme_bw(base_size = 16) +
-        theme(panel.grid = element_blank(),
-              plot.title = element_markdown(face = "bold", size = rel(1.2)),
-              plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
-              plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                          color = "grey70"),
-              legend.position = "none",
-              axis.text.x = element_text(size=rel(.6)),
-              axis.text.y = element_text(size=rel(.6)),
-              strip.text = element_text(size=rel(.6), margin = margin(.05,0,.05,0, "cm")),
-              strip.background.y=element_rect(color = "grey70",  fill=NA),
-              plot.title.position = "plot")
+        new_facet_theme
     } else {
       ggplot(new_cases_data, aes(x=Date,y=New_Cases_Avg)) +
         geom_line() +
@@ -293,17 +291,7 @@ server <- function(input, output) {
              title = "Which states are seeing new cases <span style='color: #91cf60'>**fall**</span> versus <span style='color: red'>**rise**</span>",
              caption = "Plot: @jakepscott2020 | Data: New York Times") +
         theme_bw(base_size = 16) +
-        theme(panel.grid = element_blank(),
-              plot.title = element_markdown(face = "bold", size = rel(1.2)),
-              plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
-              plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                          color = "grey70"),
-              legend.position = "none",
-              axis.text.x = element_text(size=rel(.6)),
-              axis.text.y = element_text(size=rel(.6)),
-              strip.text = element_text(size=rel(.6), margin = margin(.05,0,.05,0, "cm")),
-              strip.background.y=element_rect(color = "grey70",  fill=NA),
-              plot.title.position = "plot")
+        new_facet_theme
     }
   })
   
@@ -328,17 +316,8 @@ server <- function(input, output) {
              title="Deaths Per Million Residents",
              caption = "Plot: @jakepscott2020 | Data: New York Times") +
         theme_bw(base_size = 16) +
-        theme(panel.grid = element_blank(),
-              plot.title = element_text(face = "bold", size = rel(1.2)),
-              plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
-              plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                          color = "grey70"),
-              axis.text.x = element_text(size=rel(.6)),
-              axis.text.y = element_text(size=rel(.6)),
-              legend.position = "none",
-              strip.text = element_text(size=rel(.6), margin = margin(.05,0,.05,0, "cm")),
-              strip.background.y=element_rect(color = "grey70",  fill=NA),
-              plot.title.position = "plot")
+        total_facet_theme
+      
     } else {
       ggplot(total_deaths_data, aes(x=Date,y=Deaths)) +
         geom_line() +
@@ -353,17 +332,7 @@ server <- function(input, output) {
              title="Total Deaths",
              caption = "Plot: @jakepscott2020 | Data: New York Times") +
         theme_bw(base_size = 16) +
-        theme(panel.grid = element_blank(),
-              plot.title = element_text(face = "bold", size = rel(1.2)),
-              plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
-              plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                          color = "grey70"),
-              axis.text.x = element_text(size=rel(.6)),
-              axis.text.y = element_text(size=rel(.6)),
-              legend.position = "none",
-              strip.text = element_text(size=rel(.6), margin = margin(.05,0,.05,0, "cm")),
-              strip.background.y=element_rect(color = "grey70",  fill=NA),
-              plot.title.position = "plot")
+        total_facet_theme
     }
   })
   
@@ -394,17 +363,8 @@ server <- function(input, output) {
              title = "Which states are seeing new deaths <span style='color: #91cf60'>**fall**</span> versus <span style='color: red'>**rise**</span>",
              caption = "Plot: @jakepscott2020 | Data: New York Times") +
         theme_bw(base_size = 16) +
-        theme(panel.grid = element_blank(),
-              plot.title = element_markdown(face = "bold", size = rel(1.2)),
-              plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
-              plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                          color = "grey70"),
-              legend.position = "none",
-              axis.text.x = element_text(size=rel(.6)),
-              axis.text.y = element_text(size=rel(.6)),
-              strip.text = element_text(size=rel(.6), margin = margin(.05,0,.05,0, "cm")),
-              strip.background.y=element_rect(color = "grey70",  fill=NA),
-              plot.title.position = "plot") 
+        new_facet_theme
+      
     } else {
       ggplot(new_deaths_data, aes(x=Date,y=New_Deaths_Avg)) +
         geom_line() +
@@ -421,17 +381,8 @@ server <- function(input, output) {
              title = "Which states are seeing new deaths <span style='color: #91cf60'>**fall**</span> versus <span style='color: red'>**rise**</span>",
              caption = "Plot: @jakepscott2020 | Data: New York Times") +
         theme_bw(base_size = 16) +
-        theme(panel.grid = element_blank(),
-              plot.title = element_markdown(face = "bold", size = rel(1.2)),
-              plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
-              plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                          color = "grey70"),
-              legend.position = "none",
-              axis.text.x = element_text(size=rel(.6)),
-              axis.text.y = element_text(size=rel(.6)),
-              strip.text = element_text(size=rel(.6), margin = margin(.05,0,.05,0, "cm")),
-              strip.background.y=element_rect(color = "grey70",  fill=NA),
-              plot.title.position = "plot")
+        new_facet_theme
+      
     }
   })
   
