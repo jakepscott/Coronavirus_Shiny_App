@@ -41,7 +41,12 @@ dates <- as_tibble(dates)
 
 
 # Making the Function Itself ----------------------------------------------
-county_graph <- function(state="Alabama",county="Autauga",measure="New Cases Per 100k",rollmean=7){
+county_graph <- function(state="Alabama",
+                         county="Autauga",
+                         measure="New Cases Per 100k",
+                         rollmean=7,
+                         date_min=ymd("2020-03-25"),
+                         date_max=Sys.Date()){
   
 
 # Filtering the data ------------------------------------------------------
@@ -143,6 +148,7 @@ county_graph <- function(state="Alabama",county="Autauga",measure="New Cases Per
                       breaks = c("Decreasing", "Steady","Increasing")) +
     scale_color_manual(values = c("#91cf60","grey70","red"), 
                        breaks = c("Decreasing", "Steady","Increasing")) +
+    coord_cartesian(xlim = c(date_min,date_max)) +
     labs(y=NULL,
          x=NULL,
          fill=NULL,

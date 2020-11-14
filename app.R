@@ -153,7 +153,6 @@ ui <- fluidPage(
                                                     label = 'Date range input: yyyy-mm-dd',
                                                     start = "2020-01-22", end = Sys.Date()-1,
                                                     min = "2020-01-22", max = Sys.Date()-1)
-                                     
                         ),
                         mainPanel(
                           withSpinner(plotlyOutput("state_view", height = 600),type = 6)
@@ -177,7 +176,11 @@ ui <- fluidPage(
                                                  min=1,
                                                  max=14,
                                                  value=7,
-                                                 step=1)
+                                                 step=1),
+                                     dateRangeInput('dateRangeCountyView',
+                                                    label = 'Date range input: yyyy-mm-dd',
+                                                    start = "2020-01-22", end = Sys.Date()-1,
+                                                    min = "2020-01-22", max = Sys.Date()-1)
                         ),
                         
                         mainPanel(
@@ -627,8 +630,12 @@ server <- function(input, output) {
   output$plot <- renderPlotly({
     req(input$statenameforcounties!="")
     req(input$county!="")
-    ggplotly(county_graph(state = input$statenameforcounties, county = input$county,
-                          measure = input$measureforcounties, rollmean = input$RollingAverageforcounties),
+    ggplotly(county_graph(state = input$statenameforcounties, 
+                          county = input$county,
+                          measure = input$measureforcounties, 
+                          rollmean = input$RollingAverageforcounties,
+                          date_min = input$dateRangeCountyView[1],
+                          date_max = input$dateRangeCountyView[2]),
              tooltip="text")
   })
 }
