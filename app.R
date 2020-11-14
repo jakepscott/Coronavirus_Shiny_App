@@ -143,6 +143,12 @@ ui <- fluidPage(
                                                                                          "Total Cases", "Total Deaths",
                                                                                          "Total Cases Per Million", "Total Deaths Per Million"),
                                                  selected = "New Cases"),
+                                     sliderInput("RollingAverageforstates", 
+                                                 label="Window for rolling average",
+                                                 min=1,
+                                                 max=14,
+                                                 value=7,
+                                                 step=1),
                                      dateRangeInput('dateRangeStateView',
                                                     label = 'Date range input: yyyy-mm-dd',
                                                     start = "2020-01-22", end = Sys.Date()-1,
@@ -403,13 +409,9 @@ server <- function(input, output) {
     #Filtering just the state of interest
     State_Data <- US_Grouped %>%
       select(-Up_or_Down,-Up_or_Down_Deaths) %>% ##Don't want these because it is the same for all entries. For state view I want it colored by day
-      filter(State==input$statename)
-    
-    #Getting rolling average of cases and deaths
-    State_Data <- State_Data %>%
-      group_by(State) %>%
-      mutate(New_Cases_Avg=rollmean(New_Cases,k = 7,fill = NA, align = "right"),
-             New_Deaths_Avg=rollmean(New_Deaths,k = 7,fill = NA, align = "right")) %>% # this just gets a 7 day rolling average
+      filter(State==input$statename) %>% 
+      mutate(New_Cases_Avg=rollmean(New_Cases,k = input$RollingAverageforstates,fill = NA, align = "right"),
+             New_Deaths_Avg=rollmean(New_Deaths,k = input$RollingAverageforstates,fill = NA, align = "right")) %>% # this just gets a 7 day rolling average
       ungroup() %>%
       mutate(New_Cases_Per_Million_Avg=(New_Cases_Avg/Population)*1000000,
              New_Deaths_Per_Million_Avg=(New_Deaths_Avg/Population)*1000000)
