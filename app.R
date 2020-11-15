@@ -15,6 +15,7 @@ library(plotly)
 library(shinycssloaders)
 
 source("County_Level_Function.R")
+source("State_Level_Function.R")
 source("Setup.R")
 
 
@@ -83,7 +84,7 @@ ui <- fluidPage(
                       )
              ),
              
-             #  UI: New Deaths ---------------------------------------------------------
+             # UI: New Deaths ---------------------------------------------------------
              tabPanel("New Deaths", fluid = TRUE,
                       sidebarLayout(
                         sidebarPanel(dateRangeInput('dateRangeNewDeaths',
@@ -104,7 +105,7 @@ ui <- fluidPage(
                       )
              ),
              
-             #  UI: Total Cases --------------------------------------------------------
+             # UI: Total Cases --------------------------------------------------------
              tabPanel("Total Cases", fluid = TRUE,
                       sidebarLayout(
                         sidebarPanel(dateRangeInput('dateRangeTotal',
@@ -119,7 +120,7 @@ ui <- fluidPage(
                       )
              ),
              
-             #  UI: Total Deaths -------------------------------------------------------
+             # UI: Total Deaths -------------------------------------------------------
              tabPanel("Total Deaths", fluid = TRUE,
                       sidebarLayout(
                         sidebarPanel(dateRangeInput('dateRangeDeaths',
@@ -134,15 +135,15 @@ ui <- fluidPage(
                       )
              ),
              
-             # State View -------------------------------------------------------------
+             # UI: State View -------------------------------------------------------------
              tabPanel("State View", fluid = TRUE,
                       sidebarLayout(
                         sidebarPanel(selectInput("statename","State", choices=sort(c(state.name,"District of Columbia"))),
-                                     selectInput("measure",label = "Measure",choices = c("New Cases", "New Deaths",
-                                                                                         "New Cases Per Million","New Deaths Per Million",
-                                                                                         "Total Cases", "Total Deaths",
-                                                                                         "Total Cases Per Million", "Total Deaths Per Million"),
+                                     selectInput("measure",label = "Measure",choices = c("New Cases"="New_Cases", "New Deaths"="New_Deaths",
+                                                                                         "Total Cases"="Cases",
+                                                                                         "Total Deaths"="Deaths"),
                                                  selected = "New Cases"),
+                                     checkboxInput("PerMilStateView", "Per Million Residents",TRUE),
                                      sliderInput("RollingAverageforstates", 
                                                  label="Window for rolling average",
                                                  min=1,
@@ -408,217 +409,14 @@ server <- function(input, output) {
   
   # State View --------------------------------------------------------------
   output$state_view <- renderPlotly({
-    entry <- input$statename
-    #Filtering just the state of interest
-    State_Data <- US_Grouped %>%
-      select(-Up_or_Down,-Up_or_Down_Deaths) %>% ##Don't want these because it is the same for all entries. For state view I want it colored by day
-      filter(State==input$statename) %>% 
-      mutate(New_Cases_Avg=rollmean(New_Cases,k = input$RollingAverageforstates,fill = NA, align = "right"),
-             New_Deaths_Avg=rollmean(New_Deaths,k = input$RollingAverageforstates,fill = NA, align = "right")) %>% # this just gets a 7 day rolling average
-      ungroup() %>%
-      mutate(New_Cases_Per_Million_Avg=(New_Cases_Avg/Population)*1000000,
-             New_Deaths_Per_Million_Avg=(New_Deaths_Avg/Population)*1000000)
-    
-    #Getting whether cases are increasing or decreasing each day for selected state
-    State_Data <- 
-      State_Data %>% 
-      group_by(State) %>%
-      mutate(change_in_new_cases=New_Cases_Avg-lag(New_Cases_Avg),
-             change_in_new_deaths=New_Deaths_Avg-lag(New_Deaths_Avg)) %>% 
-      ungroup() %>%
-      mutate(Up_or_Down=case_when(change_in_new_cases>0~"Increasing",
-                                  change_in_new_cases<0~"Decreasing",
-                                  change_in_new_cases==0~"Steady"),
-             Up_or_Down_Deaths=case_when(change_in_new_deaths>0~"Increasing",
-                                         change_in_new_deaths<0~"Decreasing",
-                                         change_in_new_deaths==0~"Steady")) 
-    
-    #Adding case labels
-    State_Data <- State_Data %>% 
-      mutate(label_new_cases=paste("There were ",round(New_Cases,0), " new cases reported in ",
-                                   State, " on ", as.character(month(Date, label = T,abbr = F)),
-                                   " ", day(Date), ", ", year(Date),sep=""),
-             label_new_cases_per_million=paste("There were ",round(New_Cases_Per_Million,0), " new cases per million residents reported in ",
-                                               State, " on ", as.character(month(Date, label = T,abbr = F)),
-                                               " ", day(Date), ", ", year(Date),sep=""),
-             label_cases=paste("There were ", round(Cases,0), " cumulative cases in ",
-                               State, " as of ", as.character(month(Date, label = T,abbr = F)),
-                               " ", day(Date), ", ", year(Date),sep=""),
-             label_cases_per_million=paste("There were ", round(cases_per_million,0), " cumulative cases per million residents in ",
-                                           State," as of ", as.character(month(Date, label = T,abbr = F)),
-                                           " ", day(Date), ", ", year(Date), ",", sep=""))
-    
-    #Adding death labels
-    State_Data <- State_Data %>% 
-      mutate(label_new_deaths=paste("There were ", round(New_Deaths,0), " new deaths reported in ",
-                                    State, " on ", as.character(month(Date, label = T,abbr = F)),
-                                    " ", day(Date), ", ", year(Date), ",", sep=""),
-             label_new_deaths_per_million=paste("There were ", round(New_Deaths_Per_Million,0), " new deaths per million residents reported in ",
-                                                State, " on ", as.character(month(Date, label = T,abbr = F)),
-                                                " ", day(Date), ", ", year(Date), ",", sep=""),
-             label_deaths=paste("There were ", round(Deaths,0), " cumulative deaths in ",
-                                State," as of ", as.character(month(Date, label = T,abbr = F)),
-                                " ", day(Date), ", ", year(Date), sep=""),
-             label_deaths_per_million=paste("There were ", round(Deaths_Per_Million,0), " cumulative deaths per million residents in ",
-                                            State," as of ", as.character(month(Date, label = T,abbr = F)),
-                                            " ", day(Date), ", ", year(Date), sep=""))
-    
-    ##Plotting
-    if (input$measure=="Total Cases Per Million") {
-      ggplotly(
-        ggplot(State_Data, aes(x=Date,y=cases_per_million)) +
-          geom_area(aes(fill=current_cases_per_million)) +
-          geom_line(color="black") +
-          geom_line(aes(text=label_cases_per_million)) +
-          scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
-          scale_y_continuous(expand = c(0,0),label = comma) +
-          scale_fill_viridis_c(option = "plasma", label = comma) + 
-          coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
-          labs(y=NULL,
-               x=NULL,
-               title=paste("Cumulative Cases Per Million Residents in", entry, sep=" "),
-               caption = "Plot: @jakepscott2020 | Data: New York Times") +
-          theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-          state_view_theme,
-        tooltip="text") 
-    } else {
-      if (input$measure=="Total Cases") {
-        ggplotly(
-          ggplot(State_Data, aes(x=Date,y=Cases)) +
-            geom_area(aes(fill=current_cases_per_million)) +
-            geom_line(color="black") +
-            geom_line(aes(text=label_cases)) +  
-            scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
-            scale_y_continuous(expand = c(0,0),label=comma) +
-            scale_fill_viridis_c(option = "plasma", label = comma) + 
-            coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
-            labs(y=NULL,
-                 x=NULL,
-                 title=paste("Cumulative Cases in", entry, sep=" "),
-                 caption = "Plot: @jakepscott2020 | Data: New York Times") +
-            theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-            state_view_theme,
-          tooltip="text")
-      } else {
-        if (input$measure=="Total Deaths") {
-          ggplotly(
-            ggplot(State_Data, aes(x=Date,y=Deaths)) +
-              geom_area(aes(fill=Current_Deaths_Per_Million)) +
-              geom_line(color="black") +
-              geom_line(aes(text=label_deaths)) +  
-              scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
-              scale_y_continuous(expand = c(0,0),label=comma) +
-              scale_fill_viridis_c(option = "plasma", label = comma) + 
-              coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
-              labs(y=NULL,
-                   x=NULL,
-                   title=paste("Cumulative Deaths in", entry, sep=" "),
-                   caption = "Plot: @jakepscott2020 | Data: New York Times") +
-              theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-              state_view_theme,
-            tooltip="text")
-        } else {
-          if (input$measure=="Total Deaths Per Million") {
-            ggplotly(
-              ggplot(State_Data, aes(x=Date,y=Deaths_Per_Million)) +
-                geom_area(aes(fill=Current_Deaths_Per_Million)) +
-                geom_line(color="black") +
-                geom_line(aes(text=label_deaths_per_million)) +  
-                scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
-                scale_y_continuous(expand = c(0,0),label=comma) +
-                scale_fill_viridis_c(option = "plasma", label = comma) + 
-                coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
-                labs(y=NULL,
-                     x=NULL,
-                     title=paste("Deaths Per Million Residents in", entry, sep=" "),
-                     caption = "Plot: @jakepscott2020 | Data: New York Times") +
-                theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-                state_view_theme,
-              tooltip="text")
-          } else {
-            if (input$measure=="New Cases") {
-              ggplotly(ggplot(State_Data, aes(x=Date,y=New_Cases)) +
-                         geom_col(aes(text=label_new_cases,fill=Up_or_Down,color=Up_or_Down), alpha=.7) +
-                         geom_line(aes(y=New_Cases_Avg),lwd=1) +
-                         scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
-                         scale_y_continuous(expand = c(0,0),label = comma) +
-                         scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
-                         scale_color_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
-                         coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
-                         labs(y=NULL,
-                              x=NULL,
-                              fill=NULL,
-                              title=paste("The Rolling Average of New Cases is", last(State_Data$Up_or_Down), "in", entry, sep=" "),
-                              subtitle = "7 day rolling average of new cases",
-                              caption = "Plot: @jakepscott2020 | Data: New York Times") +
-                         theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-                         state_view_theme,
-                       tooltip = "text")
-            } else {
-              if (input$measure=="New Cases Per Million") {
-                ggplotly(ggplot(State_Data, aes(x=Date,y=New_Cases_Per_Million)) +
-                           geom_col(aes(text=label_new_cases_per_million,fill=Up_or_Down,color=Up_or_Down), alpha=.7) +
-                           geom_line(aes(y=New_Cases_Per_Million_Avg),lwd=1) +
-                           scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
-                           scale_y_continuous(expand = c(0,0),label = comma) +
-                           scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
-                           scale_color_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
-                           coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
-                           labs(y=NULL,
-                                x=NULL,
-                                fill=NULL,
-                                title=paste("The Rolling Average of New Cases is", last(State_Data$Up_or_Down), "in", entry, sep=" "),
-                                subtitle = "7 day rolling average of new cases",
-                                caption = "Plot: @jakepscott2020 | Data: New York Times") +
-                           theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-                           state_view_theme,
-                         tooltip = "text")
-              } else {
-                if (input$measure=="New Deaths Per Million") {
-                  ggplotly(ggplot(State_Data, aes(x=Date,y=New_Deaths_Per_Million)) +
-                             geom_col(aes(text=label_new_deaths_per_million,fill=Up_or_Down_Deaths,color=Up_or_Down_Deaths), alpha=.7) +
-                             geom_line(aes(y=New_Deaths_Per_Million_Avg),lwd=1) +
-                             scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
-                             scale_y_continuous(expand = c(0,0),label = comma) +
-                             scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
-                             scale_color_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
-                             coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
-                             labs(y=NULL,
-                                  x=NULL,
-                                  fill=NULL,
-                                  title=paste("The Rolling Average of New Deaths Per Million Residents is", last(State_Data$Up_or_Down_Deaths), "in", entry, sep=" "),
-                                  subtitle = "7 day rolling average of new deaths per million residents",
-                                  caption = "Plot: @jakepscott2020 | Data: New York Times") +
-                             theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-                             state_view_theme,
-                           tooltip = "text")
-                } else {
-                  if (input$measure=="New Deaths") {
-                    ggplotly(ggplot(State_Data, aes(x=Date,y=New_Deaths)) +
-                               geom_col(aes(text=label_new_deaths,fill=Up_or_Down_Deaths,color=Up_or_Down_Deaths), alpha=.7) +
-                               geom_line(aes(y=New_Deaths_Avg),lwd=1) +
-                               scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
-                               scale_y_continuous(expand = c(0,0),label = comma) +
-                               scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
-                               scale_color_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
-                               coord_cartesian(xlim=c(input$dateRangeStateView[1],input$dateRangeStateView[2])) +
-                               labs(y=NULL,
-                                    x=NULL,
-                                    fill=NULL,
-                                    title=paste("The Rolling Average of New Deaths is", last(State_Data$Up_or_Down_Deaths), "in", entry, sep=" "),
-                                    subtitle = "7 day rolling average of new deaths",
-                                    caption = "Plot: @jakepscott2020 | Data: New York Times") +
-                               theme_bw(base_family = "Source Sans Pro",base_size = 16) +
-                               state_view_theme,
-                             tooltip = "text")
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+    ggplotly(state_graph(Data = US_Data,
+                         state = input$statename,
+                         measure = input$measure,
+                         per_million = input$PerMilStateView,
+                         rollmean = input$RollingAverageforstates,
+                         date_min = input$dateRangeStateView[1],
+                         date_max = input$dateRangeStateView[2]),
+             tooltip="text")
   })
   
   # County View -------------------------------------------------------------
