@@ -62,6 +62,31 @@ ui <- fluidPage(
   theme = shinytheme("journal"),
   # Application title
   navbarPage("Coronavirus in the United States", theme = shinytheme("lumen"),
+             # UI: Nation View -------------------------------------------------------------
+             tabPanel("National View", fluid = TRUE,
+                      sidebarLayout(
+                        sidebarPanel(selectInput("nationalmeasure",label = "Measure",choices = c("New Cases"="New_Cases", "New Deaths"="New_Deaths",
+                                                                                         "Total Cases"="Cases",
+                                                                                         "Total Deaths"="Deaths"),
+                                                 selected = "New Cases"),
+                                     checkboxInput("PerMilNationView", "Per Million Residents",FALSE),
+                                     sliderInput("RollingAveragefornation", 
+                                                 label="Window for rolling average",
+                                                 min=1,
+                                                 max=14,
+                                                 value=7,
+                                                 step=1),
+                                     dateRangeInput('dateRangeNationView',
+                                                    label = 'Date range input: yyyy-mm-dd',
+                                                    start = "2020-01-22", end = Sys.Date()-1,
+                                                    min = "2020-01-22", max = Sys.Date()-1)
+                        ),
+                        mainPanel(
+                          withSpinner(plotlyOutput("nation_view", height = 600),type = 6)
+                        )
+                      )
+             ),
+             
              
              # UI: New Cases ---------------------------------------------------------------
              tabPanel("New Cases", fluid = TRUE,
@@ -139,7 +164,7 @@ ui <- fluidPage(
              tabPanel("State View", fluid = TRUE,
                       sidebarLayout(
                         sidebarPanel(selectInput("statename","State", choices=sort(c(state.name,"District of Columbia"))),
-                                     selectInput("measure",label = "Measure",choices = c("New Cases"="New_Cases", "New Deaths"="New_Deaths",
+                                     selectInput("statemeasure",label = "Measure",choices = c("New Cases"="New_Cases", "New Deaths"="New_Deaths",
                                                                                          "Total Cases"="Cases",
                                                                                          "Total Deaths"="Deaths"),
                                                  selected = "New Cases"),
@@ -227,6 +252,16 @@ ui <- fluidPage(
 # Server ------------------------------------------------------------------
 server <- function(input, output) {
   
+  # Nation View --------------------------------------------------------------
+  output$nation_view <- renderPlotly({
+    ggplotly(national_graph(Data = US_Data,
+                         measure = input$nationalmeasure,
+                         per_million = input$PerMilNationView,
+                         rollmean = input$RollingAveragefornation,
+                         date_min = input$dateRangeNationView[1],
+                         date_max = input$dateRangeNationView[2]),
+             tooltip="text")
+  })
   # Total Cases by State --------------------------------------------------
   output$cases_by_state <- renderPlot({
     #Filtering data
@@ -410,8 +445,7 @@ server <- function(input, output) {
   # State View --------------------------------------------------------------
   output$state_view <- renderPlotly({
     ggplotly(state_graph(Data = US_Data,
-                         state = input$statename,
-                         measure = input$measure,
+                         measure = input$statemeasure,
                          per_million = input$PerMilStateView,
                          rollmean = input$RollingAverageforstates,
                          date_min = input$dateRangeStateView[1],

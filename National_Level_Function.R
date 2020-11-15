@@ -198,5 +198,5 @@ national_graph <- function(Data,
   
   
 }
-national_graph(US_Data, rollmean = 10,measure = "New_Deaths")
+#national_graph(US_Data, rollmean = 10,measure = "New_Deaths")
 
