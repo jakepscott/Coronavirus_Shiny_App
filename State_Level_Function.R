@@ -173,9 +173,11 @@ True_Measure <- if (per_million==T) {
                            True_Measure=="Deaths"~"Cumulative Deaths",
                            True_Measure=="Cases_Per_Million"~"Cumulative Cases Per Million Residents",
                            True_Measure=="Deaths_Per_Million"~"Cumulative Deaths Per Million Residents")
+    color_var <- case_when(str_detect(True_Measure,"Cases")~"#D41804",
+                           str_detect(True_Measure,"Deaths")~"grey20")
     
     ggplot(Data, aes_string(x="Date",y=True_Measure)) +
-      geom_area() +
+      geom_area(fill=color_var) +
       geom_line(color="black") +
       geom_line(aes_string(text=paste("Label_",True_Measure,sep=""))) +
       scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +

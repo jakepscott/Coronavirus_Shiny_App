@@ -143,7 +143,7 @@ ui <- fluidPage(
                                                                                          "Total Cases"="Cases",
                                                                                          "Total Deaths"="Deaths"),
                                                  selected = "New Cases"),
-                                     checkboxInput("PerMilStateView", "Per Million Residents",TRUE),
+                                     checkboxInput("PerMilStateView", "Per Million Residents",FALSE),
                                      sliderInput("RollingAverageforstates", 
                                                  label="Window for rolling average",
                                                  min=1,
