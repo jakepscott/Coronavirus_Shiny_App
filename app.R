@@ -142,78 +142,81 @@ ui <- fluidPage(
                         )
                       )
              ),
-             # UI: New Cases ---------------------------------------------------------------
-             tabPanel("New Cases",icon = icon("fas fa-map"), fluid = TRUE,
-                      sidebarLayout(
-                        sidebarPanel(dateRangeInput('dateRangeNew',
-                                                    label = 'Date range input: yyyy-mm-dd',
-                                                    start = "2020-03-10", end = Sys.Date()-1,
-                                                    min = "2020-01-22", max = Sys.Date()-1),
-                                     checkboxInput("PerMilNew", "Per Million Residents",TRUE),
-                                     sliderInput("RollingAverage", 
-                                                 label="Window for rolling average",
-                                                 min=1,
-                                                 max=14,
-                                                 value=7,
-                                                 step=1)
+             navbarMenu("Map",icon = icon("fas fa-map"),
+                        # UI: New Cases ---------------------------------------------------------------
+                        tabPanel("New Cases",fluid = TRUE,
+                                 sidebarLayout(
+                                   sidebarPanel(dateRangeInput('dateRangeNew',
+                                                               label = 'Date range input: yyyy-mm-dd',
+                                                               start = "2020-03-10", end = Sys.Date()-1,
+                                                               min = "2020-01-22", max = Sys.Date()-1),
+                                                checkboxInput("PerMilNew", "Per Million Residents",TRUE),
+                                                sliderInput("RollingAverage", 
+                                                            label="Window for rolling average",
+                                                            min=1,
+                                                            max=14,
+                                                            value=7,
+                                                            step=1)
+                                   ),
+                                   mainPanel(
+                                     withSpinner(plotOutput("new_cases_by_state", height = 600),type = 6)
+                                   )
+                                 )
                         ),
-                        mainPanel(
-                          withSpinner(plotOutput("new_cases_by_state", height = 600),type = 6)
+                        
+                        # UI: New Deaths ---------------------------------------------------------
+                        tabPanel("New Deaths", fluid = TRUE,
+                                 sidebarLayout(
+                                   sidebarPanel(dateRangeInput('dateRangeNewDeaths',
+                                                               label = 'Date range input: yyyy-mm-dd',
+                                                               start = "2020-03-10", end = Sys.Date()-1,
+                                                               min = "2020-01-22", max = Sys.Date()-1),
+                                                checkboxInput("PerMilNewDeaths", "Per Million Residents",TRUE),
+                                                sliderInput("RollingAverageDeaths", 
+                                                            label="Window for rolling average",
+                                                            min=1,
+                                                            max=14,
+                                                            value=7,
+                                                            step=1)
+                                   ),
+                                   mainPanel(
+                                     withSpinner(plotOutput("new_deaths_by_state", height = 600),type = 6)
+                                   )
+                                 )
+                        ),
+                        
+                        # UI: Total Cases --------------------------------------------------------
+                        tabPanel("Total Cases", fluid = TRUE,
+                                 sidebarLayout(
+                                   sidebarPanel(dateRangeInput('dateRangeTotal',
+                                                               label = 'Date range input: yyyy-mm-dd',
+                                                               start = "2020-03-10", end = Sys.Date()-1,
+                                                               min = "2020-01-22", max = Sys.Date()-1),
+                                                checkboxInput("PerMil", "Per Million Residents",TRUE)
+                                   ),
+                                   mainPanel(
+                                     withSpinner(plotOutput("cases_by_state", height = 600),type=6)
+                                   )
+                                 )
+                        ),
+                        
+                        # UI: Total Deaths -------------------------------------------------------
+                        tabPanel("Total Deaths", fluid = TRUE,
+                                 sidebarLayout(
+                                   sidebarPanel(dateRangeInput('dateRangeDeaths',
+                                                               label = 'Date range input: yyyy-mm-dd',
+                                                               start = "2020-03-10", end = Sys.Date()-1,
+                                                               min = "2020-01-22", max = Sys.Date()-1),
+                                                checkboxInput("PerMilDeaths", "Per Million Residents",TRUE)
+                                   ),
+                                   mainPanel(
+                                     withSpinner(plotOutput("deaths_by_state", height = 600),type=6)
+                                   )
+                                 )
                         )
-                      )
+                        
              ),
              
-             # UI: New Deaths ---------------------------------------------------------
-             tabPanel("New Deaths", fluid = TRUE,
-                      sidebarLayout(
-                        sidebarPanel(dateRangeInput('dateRangeNewDeaths',
-                                                    label = 'Date range input: yyyy-mm-dd',
-                                                    start = "2020-03-10", end = Sys.Date()-1,
-                                                    min = "2020-01-22", max = Sys.Date()-1),
-                                     checkboxInput("PerMilNewDeaths", "Per Million Residents",TRUE),
-                                     sliderInput("RollingAverageDeaths", 
-                                                 label="Window for rolling average",
-                                                 min=1,
-                                                 max=14,
-                                                 value=7,
-                                                 step=1)
-                        ),
-                        mainPanel(
-                          withSpinner(plotOutput("new_deaths_by_state", height = 600),type = 6)
-                        )
-                      )
-             ),
-             
-             # UI: Total Cases --------------------------------------------------------
-             tabPanel("Total Cases", fluid = TRUE,
-                      sidebarLayout(
-                        sidebarPanel(dateRangeInput('dateRangeTotal',
-                                                    label = 'Date range input: yyyy-mm-dd',
-                                                    start = "2020-03-10", end = Sys.Date()-1,
-                                                    min = "2020-01-22", max = Sys.Date()-1),
-                                     checkboxInput("PerMil", "Per Million Residents",TRUE)
-                        ),
-                        mainPanel(
-                          withSpinner(plotOutput("cases_by_state", height = 600),type=6)
-                        )
-                      )
-             ),
-             
-             # UI: Total Deaths -------------------------------------------------------
-             tabPanel("Total Deaths", fluid = TRUE,
-                      sidebarLayout(
-                        sidebarPanel(dateRangeInput('dateRangeDeaths',
-                                                    label = 'Date range input: yyyy-mm-dd',
-                                                    start = "2020-03-10", end = Sys.Date()-1,
-                                                    min = "2020-01-22", max = Sys.Date()-1),
-                                     checkboxInput("PerMilDeaths", "Per Million Residents",TRUE)
-                        ),
-                        mainPanel(
-                          withSpinner(plotOutput("deaths_by_state", height = 600),type=6)
-                        )
-                      )
-             ),
-
              # UI: More tab ------------------------------------------------------------
 
              
