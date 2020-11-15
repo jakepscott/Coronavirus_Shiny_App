@@ -52,8 +52,8 @@ True_Measure <- if (per_million==T) {
                 abb=last(abb),
                 Population=last(State_Population)) %>% 
       ungroup() %>%
-      mutate(cases_per_million=(Cases/Population)*1000000,
-             deaths_per_million=(Deaths/Population)*1000000)
+      mutate(Cases_Per_Million=(Cases/Population)*1000000,
+             Deaths_Per_Million=(Deaths/Population)*1000000)
   
   
   # Setting Up The Parameters -----------------------------------------------
@@ -116,7 +116,7 @@ True_Measure <- if (per_million==T) {
            Label_Cases=paste("There were ", round(Cases,0), " cumulative cases in ",
                              State, " as of ", as.character(month(Date, label = T,abbr = F)),
                              " ", day(Date), ", ", year(Date),sep=""),
-           Label_Cases_Per_Million=paste("There were ", round(cases_per_million,0), " cumulative cases per million residents in ",
+           Label_Cases_Per_Million=paste("There were ", round(Cases_Per_Million,0), " cumulative cases per million residents in ",
                                          State," as of ", as.character(month(Date, label = T,abbr = F)),
                                          " ", day(Date), ", ", year(Date), ",", sep=""))
   
@@ -131,7 +131,7 @@ True_Measure <- if (per_million==T) {
            Label_Deaths=paste("There were ", round(Deaths,0), " cumulative deaths in ",
                               State," as of ", as.character(month(Date, label = T,abbr = F)),
                               " ", day(Date), ", ", year(Date), sep=""),
-           Label_Deaths_Per_Million=paste("There were ", round(deaths_per_million,0), " cumulative deaths per million residents in ",
+           Label_Deaths_Per_Million=paste("There were ", round(Deaths_Per_Million,0), " cumulative deaths per million residents in ",
                                           State," as of ", as.character(month(Date, label = T,abbr = F)),
                                           " ", day(Date), ", ", year(Date), sep=""))
   
