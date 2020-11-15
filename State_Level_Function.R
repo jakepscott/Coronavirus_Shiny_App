@@ -138,35 +138,65 @@ True_Measure <- if (per_million==T) {
   
   
   # Plotting ----------------------------------------------------------------
-  ggplot(Data, aes_string(x="Date",y=True_Measure)) +
-    geom_col(aes_string(text=paste("Label_",True_Measure,sep=""),
-                        fill=Up_or_Down_Measure,color=Up_or_Down_Measure), alpha=.7) +
-    geom_line(aes_string(y=paste(True_Measure,"_Avg",sep="")),lwd=1) +
-    scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), 
-                 guide = guide_axis(check.overlap = T)) +
-    scale_y_continuous(expand = c(0,0),label = comma) +
-    scale_fill_manual(values = c("#91cf60","grey70","red"), 
-                      breaks = c("Decreasing", "Steady","Increasing")) +
-    scale_color_manual(values = c("#91cf60","grey70","red"), 
-                       breaks = c("Decreasing", "Steady","Increasing")) +
-    coord_cartesian(xlim = c(date_min,date_max)) +
-    labs(y=NULL,
-         x=NULL,
-         fill=NULL,
-         title=paste("The Rolling Average of ", str_replace_all(True_Measure,"_"," "), " is " , Up_or_Down_Label, 
-                     " in ", state, sep=""),
-         subtitle = paste(rollmean,"day rolling average"),
-         caption = "Plot: @jakepscott2020 | Data: New York Times") +
-    theme_bw(base_family = "Source Sans Pro",base_size = 12) +
-    theme(panel.grid = element_blank(),
-          plot.title = element_text(face = "bold", size = rel(1.2)),
-          plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
-          plot.caption = element_text(face = "italic", size = rel(0.8), 
-                                      color = "grey70"),
-          legend.position = "none",
-          axis.text.x = element_text(size=rel(.8)),
-          axis.text.y = element_text(size=rel(.8)),
-          plot.title.position = "plot")
+  if (str_detect(True_Measure,"New")) {
+    ggplot(Data, aes_string(x="Date",y=True_Measure)) +
+      geom_col(aes_string(text=paste("Label_",True_Measure,sep=""),
+                          fill=Up_or_Down_Measure,color=Up_or_Down_Measure), alpha=.7) +
+      geom_line(aes_string(y=paste(True_Measure,"_Avg",sep="")),lwd=1) +
+      scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), 
+                   guide = guide_axis(check.overlap = T)) +
+      scale_y_continuous(expand = c(0,0),label = comma) +
+      scale_fill_manual(values = c("#91cf60","grey70","red"), 
+                        breaks = c("Decreasing", "Steady","Increasing")) +
+      scale_color_manual(values = c("#91cf60","grey70","red"), 
+                         breaks = c("Decreasing", "Steady","Increasing")) +
+      coord_cartesian(xlim = c(date_min,date_max)) +
+      labs(y=NULL,
+           x=NULL,
+           fill=NULL,
+           title=paste("The Rolling Average of ", str_replace_all(True_Measure,"_"," "), " is " , Up_or_Down_Label, 
+                       " in ", state, sep=""),
+           subtitle = paste(rollmean,"day rolling average"),
+           caption = "Plot: @jakepscott2020 | Data: New York Times") +
+      theme_bw(base_family = "Source Sans Pro",base_size = 12) +
+      theme(panel.grid = element_blank(),
+            plot.title = element_text(face = "bold", size = rel(1.2)),
+            plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
+            plot.caption = element_text(face = "italic", size = rel(0.8), 
+                                        color = "grey70"),
+            legend.position = "none",
+            axis.text.x = element_text(size=rel(.8)),
+            axis.text.y = element_text(size=rel(.8)),
+            plot.title.position = "plot")
+  } else {
+    title_var <- case_when(True_Measure=="Cases"~"Cumulative Cases",
+                           True_Measure=="Deaths"~"Cumulative Deaths",
+                           True_Measure=="Cases_Per_Million"~"Cumulative Cases Per Million Residents",
+                           True_Measure=="Deaths_Per_Million"~"Cumulative Deaths Per Million Residents")
+    
+    ggplot(Data, aes_string(x="Date",y=True_Measure)) +
+      geom_area() +
+      geom_line(color="black") +
+      geom_line(aes(text=paste("Label_",True_Measure,sep=""))) +
+      scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
+      scale_y_continuous(expand = c(0,0),label = comma) +
+      scale_fill_viridis_c(option = "plasma", label = comma) +
+      labs(y=NULL,
+           x=NULL,
+           title=paste(title_var, "in", state, sep=" "),
+           caption = "Plot: @jakepscott2020 | Data: New York Times") +
+      theme_bw(base_family = "Source Sans Pro",base_size = 16) +
+      theme(panel.grid = element_blank(),
+            plot.title = element_text(face = "bold", size = rel(1.2)),
+            plot.caption = element_text(face = "italic", size = rel(0.8), 
+                                        color = "grey70"),
+            axis.text.x = element_text(size=rel(.8)),
+            axis.text.y = element_text(size=rel(.8)),
+            legend.position = "none",
+            plot.title.position = "plot")
+  }
+  
+  
 }
 state_graph(US_Data, rollmean = 10,measure = "New_Deaths")
 
