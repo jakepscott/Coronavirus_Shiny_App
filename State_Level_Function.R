@@ -14,16 +14,16 @@ library(tidycensus)
 
 # Loading Raw Data --------------------------------------------------------
 #Prereq data
-State_Names <- read_rds("data/State_Names.RDS")
-state_pop_clean <- read_rds("data/state_pop_clean.RDS")
-
-US_Data_Raw <- read_csv(url("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"))
-
-US_Data <- left_join(US_Data_Raw,State_Names, by=c("state"))
-US_Data <- left_join(US_Data,state_pop_clean,by="state") %>% 
-  rename("State"=state, "Date"=date, "Cases"=cases,"Deaths"=deaths)
-US_Data <- US_Data %>% filter(State %in% State_Names$state | State=="District of Columbia")
-
+# State_Names <- read_rds("data/State_Names.RDS")
+# state_pop_clean <- read_rds("data/state_pop_clean.RDS")
+# 
+# US_Data_Raw <- read_csv(url("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"))
+# 
+# US_Data <- left_join(US_Data_Raw,State_Names, by=c("state"))
+# US_Data <- left_join(US_Data,state_pop_clean,by="state") %>% 
+#   rename("State"=state, "Date"=date, "Cases"=cases,"Deaths"=deaths)
+# US_Data <- US_Data %>% filter(State %in% State_Names$state | State=="District of Columbia")
+# 
 
 # Making the Function Itself ----------------------------------------------
 state_graph <- function(Data,
@@ -177,7 +177,7 @@ True_Measure <- if (per_million==T) {
     ggplot(Data, aes_string(x="Date",y=True_Measure)) +
       geom_area() +
       geom_line(color="black") +
-      geom_line(aes(text=paste("Label_",True_Measure,sep=""))) +
+      geom_line(aes_string(text=paste("Label_",True_Measure,sep=""))) +
       scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
       scale_y_continuous(expand = c(0,0),label = comma) +
       scale_fill_viridis_c(option = "plasma", label = comma) +
