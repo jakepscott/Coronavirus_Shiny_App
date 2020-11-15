@@ -63,7 +63,7 @@ ui <- fluidPage(
   # Application title
   navbarPage("Coronavirus in the United States", theme = shinytheme("lumen"),
              # UI: Nation View -------------------------------------------------------------
-             tabPanel("National View", fluid = TRUE,
+             tabPanel("National View",icon = icon("fas fa-flag-usa"), fluid = TRUE,
                       sidebarLayout(
                         sidebarPanel(selectInput("nationalmeasure",label = "Measure",choices = c("New Cases"="New_Cases", "New Deaths"="New_Deaths",
                                                                                          "Total Cases"="Cases",
@@ -88,8 +88,62 @@ ui <- fluidPage(
              ),
              
              
+             # UI: State View -------------------------------------------------------------
+             tabPanel("State View", icon = icon("fas fa-building"),fluid = TRUE,
+                      sidebarLayout(
+                        sidebarPanel(selectInput("statename","State", choices=sort(c(state.name,"District of Columbia"))),
+                                     selectInput("statemeasure",label = "Measure",choices = c("New Cases"="New_Cases", "New Deaths"="New_Deaths",
+                                                                                              "Total Cases"="Cases",
+                                                                                              "Total Deaths"="Deaths"),
+                                                 selected = "New Cases"),
+                                     checkboxInput("PerMilStateView", "Per Million Residents",FALSE),
+                                     sliderInput("RollingAverageforstates", 
+                                                 label="Window for rolling average",
+                                                 min=1,
+                                                 max=14,
+                                                 value=7,
+                                                 step=1),
+                                     dateRangeInput('dateRangeStateView',
+                                                    label = 'Date range input: yyyy-mm-dd',
+                                                    start = "2020-01-22", end = Sys.Date()-1,
+                                                    min = "2020-01-22", max = Sys.Date()-1)
+                        ),
+                        mainPanel(
+                          withSpinner(plotlyOutput("state_view", height = 600),type = 6)
+                        )
+                      )
+             ),
+             
+             # UI: County View --------------------------------------------------------
+             tabPanel("County View",icon = icon("fas fa-home"), fluid = TRUE,
+                      sidebarLayout(
+                        sidebarPanel(selectInput("statenameforcounties","State", choices=state.name),
+                                     uiOutput("countySelection"),
+                                     selectInput("measureforcounties", "Measure", 
+                                                 choices=c("New Cases", 
+                                                           "New Deaths",
+                                                           "New Cases Per 100k",
+                                                           "New Deaths Per 100k"),
+                                                 selected = "New Cases"),
+                                     sliderInput("RollingAverageforcounties", 
+                                                 label="Window for rolling average",
+                                                 min=1,
+                                                 max=14,
+                                                 value=7,
+                                                 step=1),
+                                     dateRangeInput('dateRangeCountyView',
+                                                    label = 'Date range input: yyyy-mm-dd',
+                                                    start = "2020-01-22", end = Sys.Date()-1,
+                                                    min = "2020-01-22", max = Sys.Date()-1)
+                        ),
+                        
+                        mainPanel(
+                          withSpinner(plotlyOutput("countyplot",height=600),type = 6)
+                        )
+                      )
+             ),
              # UI: New Cases ---------------------------------------------------------------
-             tabPanel("New Cases", fluid = TRUE,
+             tabPanel("New Cases",icon = icon("fas fa-map"), fluid = TRUE,
                       sidebarLayout(
                         sidebarPanel(dateRangeInput('dateRangeNew',
                                                     label = 'Date range input: yyyy-mm-dd',
@@ -159,86 +213,35 @@ ui <- fluidPage(
                         )
                       )
              ),
+
+             # UI: More tab ------------------------------------------------------------
+
              
-             # UI: State View -------------------------------------------------------------
-             tabPanel("State View", fluid = TRUE,
-                      sidebarLayout(
-                        sidebarPanel(selectInput("statename","State", choices=sort(c(state.name,"District of Columbia"))),
-                                     selectInput("statemeasure",label = "Measure",choices = c("New Cases"="New_Cases", "New Deaths"="New_Deaths",
-                                                                                         "Total Cases"="Cases",
-                                                                                         "Total Deaths"="Deaths"),
-                                                 selected = "New Cases"),
-                                     checkboxInput("PerMilStateView", "Per Million Residents",FALSE),
-                                     sliderInput("RollingAverageforstates", 
-                                                 label="Window for rolling average",
-                                                 min=1,
-                                                 max=14,
-                                                 value=7,
-                                                 step=1),
-                                     dateRangeInput('dateRangeStateView',
-                                                    label = 'Date range input: yyyy-mm-dd',
-                                                    start = "2020-01-22", end = Sys.Date()-1,
-                                                    min = "2020-01-22", max = Sys.Date()-1)
-                        ),
-                        mainPanel(
-                          withSpinner(plotlyOutput("state_view", height = 600),type = 6)
-                        )
-                      )
-             ),
-             
-             #  UI: County View --------------------------------------------------------
-             tabPanel("County View", fluid = TRUE,
-                      sidebarLayout(
-                        sidebarPanel(selectInput("statenameforcounties","State", choices=state.name),
-                                     uiOutput("countySelection"),
-                                     selectInput("measureforcounties", "Measure", 
-                                                 choices=c("New Cases", 
-                                                           "New Deaths",
-                                                           "New Cases Per 100k",
-                                                           "New Deaths Per 100k"),
-                                                 selected = "New Cases"),
-                                     sliderInput("RollingAverageforcounties", 
-                                                 label="Window for rolling average",
-                                                 min=1,
-                                                 max=14,
-                                                 value=7,
-                                                 step=1),
-                                     dateRangeInput('dateRangeCountyView',
-                                                    label = 'Date range input: yyyy-mm-dd',
-                                                    start = "2020-01-22", end = Sys.Date()-1,
-                                                    min = "2020-01-22", max = Sys.Date()-1)
-                        ),
-                        
-                        mainPanel(
-                          withSpinner(plotlyOutput("plot",height=600),type = 6)
-                        )
-                      )
-             ),
              navbarMenu("More",icon = icon("info-circle"),
                         tabPanel("About Me",
                                  HTML('<center><img src="ProfileImage.png" width="300" height="300"></center>'),
-                                   tags$br(),
-                                   tags$br(),
-                                   tags$article("My name is Jake Scott. I'm a recent graduate of Colgate University and a
-                                                research assistant at the Federal Reserve Board in DC. I am interested 
-                                                in data visualization, statistics, and economics, as well as their application 
-                                                to public policy. I can be reached at Jakepscott16@gmail.com or via social media.", 
-                                                style = "font-size:30px"),
-                                   tags$a(
-                                     href="https://twitter.com/jakepscott2020", 
-                                     tags$img(src="twitter.png", 
-                                              title="Example Image Link", 
-                                              width="50",
-                                              height="50")
-                                   ),
-                                   tags$a(
-                                     href="https://www.linkedin.com/in/jacob-scott-689875130/", 
-                                     tags$img(src="linkedin.png", 
-                                              title="Example Image Link", 
-                                              width="38",
-                                              height="38")
-                                   )
-                                   ),
+                                 tags$br(),
+                                 tags$br(),
+                                 tags$article("My name is Jake Scott. I'm a recent graduate of Colgate University and a
+                                              research assistant at the Federal Reserve Board in DC. I am interested 
+                                              in data visualization, statistics, and economics, as well as their application 
+                                              to public policy. I can be reached at Jakepscott16@gmail.com or via social media.", 
+                                              style = "font-size:30px"),
+                                 tags$a(
+                                   href="https://twitter.com/jakepscott2020", 
+                                   tags$img(src="twitter.png", 
+                                            title="Example Image Link", 
+                                            width="50",
+                                            height="50")
+                                 ),
+                                 tags$a(
+                                   href="https://www.linkedin.com/in/jacob-scott-689875130/", 
+                                   tags$img(src="linkedin.png", 
+                                            title="Example Image Link", 
+                                            width="38",
+                                            height="38")
+                                 )
+                        ),
                         tabPanel("About the Data",
                                  sidebarPanel(
                                    tags$article("The data used in these figures comes from the New York Times, which is collecting and publically sharing Coronavirus 
@@ -246,9 +249,8 @@ ui <- fluidPage(
                                                 style = "font-size:20px")
                                  ))
                         )
-                        ))
-
-
+                        ))             
+             
 # Server ------------------------------------------------------------------
 server <- function(input, output) {
   
@@ -260,6 +262,34 @@ server <- function(input, output) {
                          rollmean = input$RollingAveragefornation,
                          date_min = input$dateRangeNationView[1],
                          date_max = input$dateRangeNationView[2]),
+             tooltip="text")
+  })
+  # State View --------------------------------------------------------------
+  output$state_view <- renderPlotly({
+    ggplotly(state_graph(Data = US_Data,
+                         measure = input$statemeasure,
+                         per_million = input$PerMilStateView,
+                         rollmean = input$RollingAverageforstates,
+                         date_min = input$dateRangeStateView[1],
+                         date_max = input$dateRangeStateView[2]),
+             tooltip="text")
+  })
+  
+  # County View -------------------------------------------------------------
+  output$countySelection <- renderUI({
+    counties <- US_Data %>% filter(State==input$statenameforcounties & County!="Unknown") %>% arrange(County)
+    selectInput("county", "County", choices = unique(counties$County))
+  })
+  
+  output$countyplot <- renderPlotly({
+    req(input$statenameforcounties!="")
+    req(input$county!="")
+    ggplotly(county_graph(state = input$statenameforcounties, 
+                          county = input$county,
+                          measure = input$measureforcounties, 
+                          rollmean = input$RollingAverageforcounties,
+                          date_min = input$dateRangeCountyView[1],
+                          date_max = input$dateRangeCountyView[2]),
              tooltip="text")
   })
   # Total Cases by State --------------------------------------------------
@@ -442,34 +472,6 @@ server <- function(input, output) {
   })
   
   
-  # State View --------------------------------------------------------------
-  output$state_view <- renderPlotly({
-    ggplotly(state_graph(Data = US_Data,
-                         measure = input$statemeasure,
-                         per_million = input$PerMilStateView,
-                         rollmean = input$RollingAverageforstates,
-                         date_min = input$dateRangeStateView[1],
-                         date_max = input$dateRangeStateView[2]),
-             tooltip="text")
-  })
-  
-  # County View -------------------------------------------------------------
-  output$countySelection <- renderUI({
-    counties <- US_Data %>% filter(State==input$statenameforcounties & County!="Unknown") %>% arrange(County)
-    selectInput("county", "County", choices = unique(counties$County))
-  })
-  
-  output$plot <- renderPlotly({
-    req(input$statenameforcounties!="")
-    req(input$county!="")
-    ggplotly(county_graph(state = input$statenameforcounties, 
-                          county = input$county,
-                          measure = input$measureforcounties, 
-                          rollmean = input$RollingAverageforcounties,
-                          date_min = input$dateRangeCountyView[1],
-                          date_max = input$dateRangeCountyView[2]),
-             tooltip="text")
-  })
 }
 
 # Run the application 
