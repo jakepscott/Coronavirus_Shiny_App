@@ -89,7 +89,7 @@ national_graph <- function(Data,
            Deaths_Up_or_Down=case_when(change_in_new_deaths>0~"Increasing",
                                        change_in_new_deaths<0~"Decreasing",
                                        change_in_new_deaths==0~"Steady")) %>% 
-    select(Date,State,change_in_new_cases,change_in_new_deaths,
+    select(Date,change_in_new_cases,change_in_new_deaths,
            Cases_Up_or_Down, Deaths_Up_or_Down)
   
   Data <- left_join(Data,Increasing_or_Decreasing, by=c("Date")) 
