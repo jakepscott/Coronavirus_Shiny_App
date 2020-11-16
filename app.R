@@ -1,7 +1,5 @@
 
 # Libraries ---------------------------------------------------------------
-
-
 library(shiny)
 library(tidyverse)
 library(lubridate)
@@ -13,6 +11,8 @@ library(ggthemes)
 library(shinythemes)
 library(plotly)
 library(shinycssloaders)
+library(shinyalert)
+
 
 source("County_Level_Function.R")
 source("State_Level_Function.R")
@@ -59,6 +59,8 @@ state_view_theme <- theme(panel.grid = element_blank(),
 
 # UI ----------------------------------------------------------------------
 ui <- fluidPage(
+  #Enabling shiny alerts
+  useShinyalert(),
   ##Setting Theme
   theme = shinytheme("journal"),
   # Application title
@@ -256,7 +258,23 @@ ui <- fluidPage(
              
 # Server ------------------------------------------------------------------
 server <- function(input, output) {
-  
+  #Warning about data being messed up
+  shinyalert(
+    title = "Notice!",
+    text = "Cumulative measures, especially on the county level, occassionally spike up or down due to reporting lags, administrative errors, and other factors.",
+    #size = "l", 
+    closeOnEsc = TRUE,
+    closeOnClickOutside = TRUE,
+    html = FALSE,
+    type = "info",
+    showConfirmButton = TRUE,
+    showCancelButton = FALSE,
+    confirmButtonText = "Got it!",
+    confirmButtonCol = "#2E74C0",
+    timer = 0,
+    imageUrl = "",
+    animation = TRUE
+  )
   # Nation View --------------------------------------------------------------
   output$nation_view <- renderPlotly({
     ggplotly(national_graph(Data = US_Data,
