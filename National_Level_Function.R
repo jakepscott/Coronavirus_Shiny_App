@@ -134,7 +134,9 @@ national_graph <- function(Data,
            subtitle = paste(rollmean,"day rolling average"),
            caption = "Plot: @jakepscott2020 | Data: New York Times") +
       theme_bw(base_family = "Source Sans Pro",base_size = 12) +
-      theme(panel.grid = element_blank(),
+      theme(panel.grid.major.x = element_blank(),
+            panel.grid.minor.x = element_blank(),
+            panel.grid.minor.y = element_blank(),
             plot.title = element_text(face = "bold", size = rel(1.8)),
             plot.subtitle = element_text(face = "plain", size = rel(1.5), color = "grey70"),
             plot.caption = element_text(face = "italic", size = rel(0.8), 
@@ -164,7 +166,9 @@ national_graph <- function(Data,
            title=paste(title_var, "in the United States", sep=" "),
            caption = "Plot: @jakepscott2020 | Data: New York Times") +
       theme_bw(base_family = "Source Sans Pro",base_size = 12) +
-      theme(panel.grid = element_blank(),
+      theme(panel.grid.major.x = element_blank(),
+            panel.grid.minor.x = element_blank(),
+            panel.grid.minor.y = element_blank(),
             plot.title = element_text(face = "bold", size = rel(1.8)),
             plot.caption = element_text(face = "italic", size = rel(0.8), 
                                         color = "grey70"),
