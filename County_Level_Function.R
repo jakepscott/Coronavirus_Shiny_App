@@ -134,13 +134,13 @@ county_graph <- function(Data,
            caption = "Plot: @jakepscott2020 | Data: New York Times") +
       theme_bw(base_family = "Source Sans Pro",base_size = 12) +
       theme(panel.grid = element_blank(),
-            plot.title = element_text(face = "bold", size = rel(1.2)),
-            plot.subtitle = element_text(face = "plain", size = rel(1), color = "grey70"),
+            plot.title = element_text(face = "bold", size = rel(1.8)),
+            plot.subtitle = element_text(face = "plain", size = rel(1.5), color = "grey70"),
             plot.caption = element_text(face = "italic", size = rel(0.8), 
                                         color = "grey70"),
             legend.position = "none",
-            axis.text.x = element_text(size=rel(.8)),
-            axis.text.y = element_text(size=rel(.8)),
+            axis.text.x = element_text(size=rel(1.5)),
+            axis.text.y = element_text(size=rel(1.5)),
             plot.title.position = "plot")
   } else {
     title_var <- case_when(True_Measure=="Cases"~"Cumulative Cases",
@@ -162,13 +162,13 @@ county_graph <- function(Data,
            x=NULL,
            title=paste(title_var, " in ",  county, ", ", state, sep=""),
            caption = "Plot: @jakepscott2020 | Data: New York Times") +
-      theme_bw(base_family = "Source Sans Pro",base_size = 16) +
+      theme_bw(base_family = "Source Sans Pro",base_size = 12) +
       theme(panel.grid = element_blank(),
-            plot.title = element_text(face = "bold", size = rel(1.2)),
+            plot.title = element_text(face = "bold", size = rel(1.8)),
             plot.caption = element_text(face = "italic", size = rel(0.8), 
                                         color = "grey70"),
-            axis.text.x = element_text(size=rel(.8)),
-            axis.text.y = element_text(size=rel(.8)),
+            axis.text.x = element_text(size=rel(1.5)),
+            axis.text.y = element_text(size=rel(1.5)),
             legend.position = "none",
             plot.title.position = "plot")
   }
