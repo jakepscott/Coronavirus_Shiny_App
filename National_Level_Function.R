@@ -12,19 +12,6 @@ library(gganimate)
 library(sf)
 library(tidycensus)
 
-# Loading Raw Data --------------------------------------------------------
-#Prereq data
-State_Names <- read_rds("data/State_Names.RDS")
-state_pop_clean <- read_rds("data/state_pop_clean.RDS")
-
-US_Data_Raw <- read_csv(url("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"))
-
-US_Data <- left_join(US_Data_Raw,State_Names, by=c("state"))
-US_Data <- left_join(US_Data,state_pop_clean,by="state") %>%
-  rename("State"=state, "Date"=date, "Cases"=cases,"Deaths"=deaths)
-US_Data <- US_Data %>% filter(State %in% State_Names$state | State=="District of Columbia")
-
-
 # Making the Function Itself ----------------------------------------------
 national_graph <- function(Data,
                            measure="New_Cases",
@@ -181,6 +168,7 @@ national_graph <- function(Data,
       scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
       scale_y_continuous(expand = c(0,0),label = comma) +
       scale_fill_viridis_c(option = "plasma", label = comma) +
+      coord_cartesian(xlim = c(date_min,date_max)) +
       labs(y=NULL,
            x=NULL,
            title=paste(title_var, "in the United States", sep=" "),

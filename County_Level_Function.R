@@ -168,6 +168,7 @@ county_graph <- function(Data,
       scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
       scale_y_continuous(expand = c(0,0),label = comma) +
       scale_fill_viridis_c(option = "plasma", label = comma) +
+      coord_cartesian(xlim = c(date_min,date_max)) +
       labs(y=NULL,
            x=NULL,
            title=paste(title_var, " in ",  county, ", ", state, sep=""),
