@@ -1,15 +1,4 @@
 # Loading Libraries--------------------------------------------------------
-library(shiny)
-library(tidyverse)
-library(lubridate)
-library(geofacet)
-library(scales)
-library(zoo)
-library(ggtext) 
-library(ggthemes)
-library(shinythemes)
-library(gganimate)
-library(sf)
 library(tidycensus)
 
 

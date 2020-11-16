@@ -1,15 +1,5 @@
 # Loading Libraries--------------------------------------------------------
-library(shiny)
-library(tidyverse)
-library(lubridate)
-library(geofacet)
-library(scales)
-library(zoo)
-library(ggtext) 
-library(ggthemes)
-library(shinythemes)
-library(gganimate)
-library(sf)
+
 library(tidycensus)
 
 
@@ -189,5 +179,4 @@ True_Measure <- if (per_million==T) {
   
   
 }
-state_graph(US_Data, rollmean = 10,measure = "New_Deaths")
 
