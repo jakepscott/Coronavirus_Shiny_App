@@ -170,7 +170,7 @@ county_graph <- function(Data,
       scale_fill_viridis_c(option = "plasma", label = comma) +
       labs(y=NULL,
            x=NULL,
-           title=paste(title_var, "in",  county, ", ", state, sep=" "),
+           title=paste(title_var, " in ",  county, ", ", state, sep=""),
            caption = "Plot: @jakepscott2020 | Data: New York Times") +
       theme_bw(base_family = "Source Sans Pro",base_size = 16) +
       theme(panel.grid = element_blank(),

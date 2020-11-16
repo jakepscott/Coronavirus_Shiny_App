@@ -121,10 +121,9 @@ ui <- fluidPage(
                         sidebarPanel(selectInput("statenameforcounties","State", choices=state.name),
                                      uiOutput("countySelection"),
                                      selectInput("measureforcounties", "Measure", 
-                                                 choices=c("New Cases", 
-                                                           "New Deaths",
-                                                           "New Cases Per 100k",
-                                                           "New Deaths Per 100k"),
+                                                 choices = c("New Cases"="New_Cases", "New Deaths"="New_Deaths",
+                                                             "Total Cases"="Cases",
+                                                             "Total Deaths"="Deaths"),
                                                  selected = "New Cases"),
                                      sliderInput("RollingAverageforcounties", 
                                                  label="Window for rolling average",
@@ -289,7 +288,8 @@ server <- function(input, output) {
   output$countyplot <- renderPlotly({
     req(input$statenameforcounties!="")
     req(input$county!="")
-    ggplotly(county_graph(state = input$statenameforcounties, 
+    ggplotly(county_graph(Data=US_Data,
+                          state = input$statenameforcounties, 
                           county = input$county,
                           measure = input$measureforcounties, 
                           rollmean = input$RollingAverageforcounties,
