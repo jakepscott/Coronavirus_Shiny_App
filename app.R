@@ -16,6 +16,7 @@ library(shinycssloaders)
 
 source("County_Level_Function.R")
 source("State_Level_Function.R")
+source("National_Level_Function.R")
 source("Setup.R")
 
 
@@ -142,7 +143,7 @@ ui <- fluidPage(
                         )
                       )
              ),
-             navbarMenu("Map",icon = icon("fas fa-map"),
+             navbarMenu("Maps",icon = icon("fas fa-map"),
                         # UI: New Cases ---------------------------------------------------------------
                         tabPanel("New Cases",fluid = TRUE,
                                  sidebarLayout(
@@ -270,6 +271,7 @@ server <- function(input, output) {
   # State View --------------------------------------------------------------
   output$state_view <- renderPlotly({
     ggplotly(state_graph(Data = US_Data,
+                         state = input$statename,
                          measure = input$statemeasure,
                          per_million = input$PerMilStateView,
                          rollmean = input$RollingAverageforstates,
