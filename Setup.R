@@ -61,31 +61,5 @@ US_Grouped <- US_Grouped %>%
   mutate(New_Cases_Per_Million=(New_Cases/Population)*1000000,
          New_Deaths_Per_Million=(New_Deaths/Population)*1000000) 
 
-#Making a column for whether cases are increasing or decreasing
-New_Cases_Increasing <- US_Grouped %>% 
-  group_by(State) %>%
-  slice(c(n(),n()-1)) %>% #Slice grabs a row based on its row number. Slice 10 would give you the 10th row. Here I grab the nth row and the n-1 row
-  mutate(change_in_new_cases=New_Cases-lead(New_Cases))  %>%
-  ungroup() %>%
-  filter(!is.na(change_in_new_cases)) %>%
-  mutate(Up_or_Down=case_when(change_in_new_cases>0~"Increasing",
-                              change_in_new_cases<0~"Decreasing",
-                              change_in_new_cases==0~"Steady")) %>% 
-  select(State,change_in_new_cases,Up_or_Down)
 
-US_Grouped <- left_join(US_Grouped,New_Cases_Increasing, by="State")
-
-##Getting whether new deaths are increasing or decreasing
-New_Deaths_Increasing <- US_Grouped %>% 
-  group_by(abb) %>%
-  slice(c(n(),n()-1)) %>%
-  mutate(Change_In_New_Deaths=New_Deaths-lead(New_Deaths))  %>%
-  ungroup() %>%
-  filter(!is.na(Change_In_New_Deaths)) %>%
-  mutate(Up_or_Down_Deaths=case_when(Change_In_New_Deaths>0~"Increasing",
-                                     Change_In_New_Deaths<0~"Decreasing",
-                                     Change_In_New_Deaths==0~"Steady")) %>% 
-  select(State,Change_In_New_Deaths,Up_or_Down_Deaths)
-
-US_Grouped <- left_join(US_Grouped,New_Deaths_Increasing, by="State")
 

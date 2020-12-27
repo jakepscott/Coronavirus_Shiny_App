@@ -358,14 +358,30 @@ server <- function(input, output) {
   
   # New Cases By State --------------------------------------------
   output$new_cases_by_state <- renderPlot({
-    ##Getting whether new cases are increasing or decreasing for a given date
+    #Making a column for whether cases are increasing or decreasing
+    New_Cases_Increasing <- US_Grouped %>% 
+      filter(Date>=input$dateRangeNew[1] & Date <= input$dateRangeNew[2]) %>% 
+      group_by(State) %>%
+      slice(c(n(),n()-1)) %>% #Slice grabs a row based on its row number. Slice 10 would give you the 10th row. Here I grab the nth row and the n-1 row
+      mutate(change_in_new_cases=New_Cases-lead(New_Cases))  %>%
+      ungroup() %>%
+      filter(!is.na(change_in_new_cases)) %>%
+      mutate(Up_or_Down=case_when(change_in_new_cases>0~"Increasing",
+                                  change_in_new_cases<0~"Decreasing",
+                                  change_in_new_cases==0~"Steady")) %>% 
+      select(State,change_in_new_cases,Up_or_Down)
+    
+    New_Cases_States_Trimmed <- US_Grouped %>% filter(Date>=input$dateRangeNew[1] & Date <= input$dateRangeNew[2]) 
+    
+    New_Cases_States_Trimmed <- left_join(New_Cases_States_Trimmed,New_Cases_Increasing, by="State")
     
     ##Getting a Rolling Average of New Cases
-    new_cases_data <- US_Grouped %>%
+    new_cases_data <- New_Cases_States_Trimmed %>%
       group_by(State) %>%
       mutate(New_Cases_Avg=rollmean(New_Cases,k = input$RollingAverage,fill = NA, align = "right")) %>% # this just gets a k day rolling average
       ungroup() %>%
       mutate(New_Cases_Per_Million_Avg=(New_Cases_Avg/Population)*1000000)
+    
     
     if (input$PerMilNew==TRUE) {
       ##Plotting
@@ -377,7 +393,7 @@ server <- function(input, output) {
         scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
         scale_y_continuous(expand = c(0,0)) +
         scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
-        coord_cartesian(xlim=c(input$dateRangeNew[1],input$dateRangeNew[2])) +
+        #coord_cartesian(xlim=c(input$dateRangeNew[1],input$dateRangeNew[2])) +
         labs(y=NULL,
              x=NULL,
              fill=NULL,
@@ -475,12 +491,30 @@ server <- function(input, output) {
   # New Deaths --------------------------------------------------------------
   
   output$new_deaths_by_state <- renderPlot({
-    ##Getting a Rolling Average of New deaths
-    new_deaths_data <- US_Grouped %>%
+    
+    New_Deaths_Increasing <- US_Grouped %>% 
+      filter(Date>=input$dateRangeNewDeaths[1] & Date <= input$dateRangeNewDeaths[2]) %>% 
       group_by(State) %>%
-      mutate(New_Deaths_Avg=rollmean(New_Deaths,k = input$RollingAverageDeaths,fill = NA, align = "right")) %>% # this just gets a 7 day rolling average
+      slice(c(n(),n()-1)) %>% #Slice grabs a row based on its row number. Slice 10 would give you the 10th row. Here I grab the nth row and the n-1 row
+      mutate(Change_In_New_Deaths=New_Deaths-lead(New_Deaths))  %>%
+      ungroup() %>%
+      filter(!is.na(Change_In_New_Deaths)) %>%
+      mutate(Up_or_Down_Deaths=case_when(Change_In_New_Deaths>0~"Increasing",
+                                  Change_In_New_Deaths<0~"Decreasing",
+                                  Change_In_New_Deaths==0~"Steady")) %>% 
+      select(State,Change_In_New_Deaths,Up_or_Down_Deaths)
+    
+    New_Deaths_States_Trimmed <- US_Grouped %>% filter(Date>=input$dateRangeNewDeaths[1] & Date <= input$dateRangeNewDeaths[2]) 
+    
+    New_Deaths_States_Trimmed <- left_join(New_Deaths_States_Trimmed,New_Deaths_Increasing, by="State")
+    
+    ##Getting a Rolling Average of New Cases
+    new_deaths_data <- New_Deaths_States_Trimmed %>%
+      group_by(State) %>%
+      mutate(New_Deaths_Avg=rollmean(New_Deaths,k = input$RollingAverageDeaths,fill = NA, align = "right")) %>% # this just gets a k day rolling average
       ungroup() %>%
       mutate(New_Deaths_Per_Million_Avg=(New_Deaths_Avg/Population)*1000000)
+   
     
     if (input$PerMilNewDeaths==TRUE) {
       ##Plotting
@@ -491,7 +525,6 @@ server <- function(input, output) {
         scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
         scale_y_continuous(expand = c(0,0),label = comma) +
         scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
-        coord_cartesian(xlim=c(input$dateRangeNewDeaths[1],input$dateRangeNewDeaths[2])) +
         labs(y=NULL,
              x=NULL,
              fill=NULL,
@@ -506,10 +539,10 @@ server <- function(input, output) {
                 halign = .5, linetype = 1, r = unit(0, "pt"), width = unit(1, "npc"),
                 padding = margin(2, 0, 1, 0), margin = margin(0, 0, 0, 0),
                 #New cases rising in red
-                hi.labels = (new_cases_data %>% filter(Up_or_Down=="Increasing") %>% distinct(abb) %>% pull(abb)),
+                hi.labels = (new_deaths_data %>% filter(Up_or_Down_Deaths=="Increasing") %>% distinct(abb) %>% pull(abb)),
                 hi.fill = "red", hi.box.col = "red", hi.col = "white",
                 #New cases falling in green
-                hi.labels2 = (new_deaths_data %>% filter(Up_or_Down=="Decreasing") %>% distinct(abb) %>% pull(abb)),
+                hi.labels2 = (new_deaths_data %>% filter(Up_or_Down_Deaths=="Decreasing") %>% distinct(abb) %>% pull(abb)),
                 hi.fill2 = "grey80", hi.box.col2 = "grey60", hi.col2 = "black"
               ))
       
@@ -521,7 +554,6 @@ server <- function(input, output) {
         scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
         scale_y_continuous(expand = c(0,0),label = comma) +
         scale_fill_manual(values = c("#91cf60","grey70","red"), breaks = c("Decreasing", "Steady","Increasing")) +
-        coord_cartesian(xlim=c(input$dateRangeNewDeaths[1],input$dateRangeNewDeaths[2])) +
         labs(y=NULL,
              x=NULL,
              fill=NULL,
@@ -536,10 +568,10 @@ server <- function(input, output) {
                 halign = .5, linetype = 1, r = unit(0, "pt"), width = unit(1, "npc"),
                 padding = margin(2, 0, 1, 0), margin = margin(0, 0, 0, 0),
                 #New cases rising in red
-                hi.labels = (new_cases_data %>% filter(Up_or_Down=="Increasing") %>% distinct(abb) %>% pull(abb)),
+                hi.labels = (new_deaths_data %>% filter(Up_or_Down_Deaths=="Increasing") %>% distinct(abb) %>% pull(abb)),
                 hi.fill = "red", hi.box.col = "red", hi.col = "white",
                 #New cases falling in green
-                hi.labels2 = (new_cases_data %>% filter(Up_or_Down=="Decreasing") %>% distinct(abb) %>% pull(abb)),
+                hi.labels2 = (new_deaths_data %>% filter(Up_or_Down_Deaths=="Decreasing") %>% distinct(abb) %>% pull(abb)),
                 hi.fill2 = "grey80", hi.box.col2 = "grey60", hi.col2 = "black"
               ))
       
