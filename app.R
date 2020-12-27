@@ -14,9 +14,11 @@ library(shinycssloaders)
 library(shinyalert)
 
 
+
 source("County_Level_Function.R")
 source("State_Level_Function.R")
 source("National_Level_Function.R")
+source("Facet_Highlight_Function.R")
 source("Setup.R")
 
 
@@ -43,8 +45,6 @@ new_facet_theme <- theme(panel.grid = element_blank(),
                          legend.position = "none",
                          axis.text.x = element_text(size=rel(.9)),
                          axis.text.y = element_text(size=rel(.9)),
-                         strip.text = element_text(size=rel(.8), face = "bold", margin = margin(.05,0,.05,0, "cm")),
-                         strip.background=element_rect(color = "grey70",  fill="grey90"),
                          plot.title.position = "plot")
 
 state_view_theme <- theme(panel.grid = element_blank(),
@@ -358,6 +358,8 @@ server <- function(input, output) {
   
   # New Cases By State --------------------------------------------
   output$new_cases_by_state <- renderPlot({
+    ##Getting whether new cases are increasing or decreasing for a given date
+    
     ##Getting a Rolling Average of New Cases
     new_cases_data <- US_Grouped %>%
       group_by(State) %>%
@@ -367,7 +369,8 @@ server <- function(input, output) {
     
     if (input$PerMilNew==TRUE) {
       ##Plotting
-      ggplot(new_cases_data, aes(x=Date,y=New_Cases_Per_Million_Avg)) +
+      new_cases_data %>% 
+      ggplot(aes(x=Date,y=New_Cases_Per_Million_Avg)) +
         geom_line() +
         facet_geo(~abb) +
         geom_area(aes(fill=Up_or_Down)) +
@@ -382,7 +385,20 @@ server <- function(input, output) {
              title = "Which states are seeing new cases <span style='color: #91cf60'>**fall**</span> versus <span style='color: red'>**rise**</span>",
              caption = "Plot: @jakepscott2020 | Data: New York Times") +
         theme_bw(base_size = 16) +
-        new_facet_theme
+        new_facet_theme +
+        theme(strip.background = element_blank(),
+              strip.text = element_textbox_highlight(
+                fill = "grey80", box.color = "grey60", color = "black",
+                halign = .5, linetype = 1, r = unit(0, "pt"), width = unit(1, "npc"),
+                padding = margin(2, 0, 1, 0), margin = margin(0, 0, 0, 0),
+                #New cases rising in red
+                hi.labels = (new_cases_data %>% filter(Up_or_Down=="Increasing") %>% distinct(abb) %>% pull(abb)),
+                hi.fill = "red", hi.box.col = "red", hi.col = "white",
+                #New cases falling in green
+                hi.labels2 = (new_cases_data %>% filter(Up_or_Down=="Decreasing") %>% distinct(abb) %>% pull(abb)),
+                hi.fill2 = "grey80", hi.box.col2 = "grey60", hi.col2 = "black"
+              ))
+        
     } else {
       ggplot(new_cases_data, aes(x=Date,y=New_Cases_Avg)) +
         geom_line() +
@@ -399,7 +415,19 @@ server <- function(input, output) {
              title = "Which states are seeing new cases <span style='color: #91cf60'>**fall**</span> versus <span style='color: red'>**rise**</span>",
              caption = "Plot: @jakepscott2020 | Data: New York Times") +
         theme_bw(base_size = 16) +
-        new_facet_theme
+        new_facet_theme +
+        theme(strip.background = element_blank(),
+              strip.text = element_textbox_highlight(
+                fill = "grey80", box.color = "grey60", color = "black",
+                halign = .5, linetype = 1, r = unit(0, "pt"), width = unit(1, "npc"),
+                padding = margin(2, 0, 1, 0), margin = margin(0, 0, 0, 0),
+                #New cases rising in red
+                hi.labels = (new_cases_data %>% filter(Up_or_Down=="Increasing") %>% distinct(abb) %>% pull(abb)),
+                hi.fill = "red", hi.box.col = "red", hi.col = "white",
+                #New cases falling in green
+                hi.labels2 = (new_cases_data %>% filter(Up_or_Down=="Decreasing") %>% distinct(abb) %>% pull(abb)),
+                hi.fill2 = "grey80", hi.box.col2 = "grey60", hi.col2 = "black"
+              ))
     }
   })
   
@@ -471,7 +499,19 @@ server <- function(input, output) {
              title = "Which states are seeing new deaths <span style='color: #91cf60'>**fall**</span> versus <span style='color: red'>**rise**</span>",
              caption = "Plot: @jakepscott2020 | Data: New York Times") +
         theme_bw(base_size = 16) +
-        new_facet_theme
+        new_facet_theme +
+        theme(strip.background = element_blank(),
+              strip.text = element_textbox_highlight(
+                fill = "grey80", box.color = "grey60", color = "black",
+                halign = .5, linetype = 1, r = unit(0, "pt"), width = unit(1, "npc"),
+                padding = margin(2, 0, 1, 0), margin = margin(0, 0, 0, 0),
+                #New cases rising in red
+                hi.labels = (new_cases_data %>% filter(Up_or_Down=="Increasing") %>% distinct(abb) %>% pull(abb)),
+                hi.fill = "red", hi.box.col = "red", hi.col = "white",
+                #New cases falling in green
+                hi.labels2 = (new_deaths_data %>% filter(Up_or_Down=="Decreasing") %>% distinct(abb) %>% pull(abb)),
+                hi.fill2 = "grey80", hi.box.col2 = "grey60", hi.col2 = "black"
+              ))
       
     } else {
       ggplot(new_deaths_data, aes(x=Date,y=New_Deaths_Avg)) +
@@ -489,7 +529,19 @@ server <- function(input, output) {
              title = "Which states are seeing new deaths <span style='color: #91cf60'>**fall**</span> versus <span style='color: red'>**rise**</span>",
              caption = "Plot: @jakepscott2020 | Data: New York Times") +
         theme_bw(base_size = 16) +
-        new_facet_theme
+        new_facet_theme +
+        theme(strip.background = element_blank(),
+              strip.text = element_textbox_highlight(
+                fill = "grey80", box.color = "grey60", color = "black",
+                halign = .5, linetype = 1, r = unit(0, "pt"), width = unit(1, "npc"),
+                padding = margin(2, 0, 1, 0), margin = margin(0, 0, 0, 0),
+                #New cases rising in red
+                hi.labels = (new_cases_data %>% filter(Up_or_Down=="Increasing") %>% distinct(abb) %>% pull(abb)),
+                hi.fill = "red", hi.box.col = "red", hi.col = "white",
+                #New cases falling in green
+                hi.labels2 = (new_cases_data %>% filter(Up_or_Down=="Decreasing") %>% distinct(abb) %>% pull(abb)),
+                hi.fill2 = "grey80", hi.box.col2 = "grey60", hi.col2 = "black"
+              ))
       
     }
   })

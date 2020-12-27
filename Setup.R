@@ -64,7 +64,7 @@ US_Grouped <- US_Grouped %>%
 #Making a column for whether cases are increasing or decreasing
 New_Cases_Increasing <- US_Grouped %>% 
   group_by(State) %>%
-  slice(c(n(),n()-1)) %>%
+  slice(c(n(),n()-1)) %>% #Slice grabs a row based on its row number. Slice 10 would give you the 10th row. Here I grab the nth row and the n-1 row
   mutate(change_in_new_cases=New_Cases-lead(New_Cases))  %>%
   ungroup() %>%
   filter(!is.na(change_in_new_cases)) %>%
