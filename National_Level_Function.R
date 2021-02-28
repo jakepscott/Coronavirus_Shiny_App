@@ -82,33 +82,17 @@ national_graph <- function(Data,
   
   # Making Labels for all the cases/deaths variables ------------------------
   Data <- Data %>% 
-    mutate(Label_New_Cases=paste("There were ",round(New_Cases,0), " new cases reported in the US on ",
-                                 as.character(month(Date, label = T,abbr = F)),
-                                 " ", day(Date), ", ", year(Date),sep=""),
-           Label_New_Cases_Per_Million=paste("There were ",round(New_Cases_Per_Million,0), " new cases per million residents reported in the US on ",
-                                             as.character(month(Date, label = T,abbr = F)),
-                                             " ", day(Date), ", ", year(Date),sep=""),
-           Label_Cases=paste("There were ", round(Cases,0), " cumulative cases in the US on ",
-                             " as of ", as.character(month(Date, label = T,abbr = F)),
-                             " ", day(Date), ", ", year(Date),sep=""),
-           Label_Cases_Per_Million=paste("There were ", round(Cases_Per_Million,0), " cumulative cases per million residents in the US",
-                                         " as of ", as.character(month(Date, label = T,abbr = F)),
-                                         " ", day(Date), ", ", year(Date), ",", sep=""))
+    mutate(Label_New_Cases=glue("There were {prettyNum(round(New_Cases,0),big.mark=',')} new cases reported in the US on {as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}"),
+           Label_New_Cases_Per_Million=glue("There were {prettyNum(round(New_Cases_Per_Million,0),big.mark=',')} new cases per million residents reported in the US on {as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}"),
+           Label_Cases=glue("There were {prettyNum(round(Cases,0),big.mark=',')} cumulative cases in the US as of {as.character(month(Date, label = T,abbr = F))} {day(Date)} {year(Date)}"),
+           Label_Cases_Per_Million=glue("There were {prettyNum(round(Cases_Per_Million,0),big.mark=',')} cumulative cases per million residents in the US as of {as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)} "))
   
   #Adding death labels
   Data <- Data %>% 
-    mutate(Label_New_Deaths=paste("There were ", round(New_Deaths,0), " new deaths reported in the US on ",
-                                  as.character(month(Date, label = T,abbr = F)),
-                                  " ", day(Date), ", ", year(Date), ",", sep=""),
-           Label_New_Deaths_Per_Million=paste("There were ", round(New_Deaths_Per_Million,0), " new deaths per million residents reported in the US on",
-                                              as.character(month(Date, label = T,abbr = F)),
-                                              " ", day(Date), ", ", year(Date), ",", sep=""),
-           Label_Deaths=paste("There were ", round(Deaths,0), " cumulative deaths in the US",
-                              " as of ", as.character(month(Date, label = T,abbr = F)),
-                              " ", day(Date), ", ", year(Date), sep=""),
-           Label_Deaths_Per_Million=paste("There were ", round(Deaths_Per_Million,0), " cumulative deaths per million residents in the US",
-                                          " as of ", as.character(month(Date, label = T,abbr = F)),
-                                          " ", day(Date), ", ", year(Date), sep=""))
+    mutate(Label_New_Deaths=glue("There were {prettyNum(round(New_Deaths,0),big.mark=',')} new deaths reported in the US on {as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}"),
+           Label_New_Deaths_Per_Million=glue("There were {prettyNum(round(New_Deaths_Per_Million,0),big.mark=',')} new deaths per million residents reported in the US on {as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}"),
+           Label_Deaths=glue("There were {prettyNum(round(Deaths,0),big.mark=',')} cumulative deaths in the US as of {as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}"),
+           Label_Deaths_Per_Million=glue("There were {prettyNum(round(Deaths_Per_Million,0),big.mark=',')} cumulative deaths per million residents in the US as of {as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}"))
   
   
   
