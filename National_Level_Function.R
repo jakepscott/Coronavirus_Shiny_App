@@ -81,25 +81,30 @@ national_graph <- function(Data,
                                   last(Increasing_or_Decreasing$Deaths_Up_or_Down))
   
   # Making Labels for all the cases/deaths variables ------------------------
-  Data <- Data %>% 
-    mutate(Label_New_Cases=glue("There were {prettyNum(round(New_Cases,0),big.mark=',')} new cases reported in the US on {as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}"),
-           Label_New_Cases_Per_Million=glue("There were {prettyNum(round(New_Cases_Per_Million,0),big.mark=',')} new cases per million residents reported in the US on {as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}"),
-           Label_Cases=glue("There were {prettyNum(round(Cases,0),big.mark=',')} cumulative cases in the US as of {as.character(month(Date, label = T,abbr = F))} {day(Date)} {year(Date)}"),
-           Label_Cases_Per_Million=glue("There were {prettyNum(round(Cases_Per_Million,0),big.mark=',')} cumulative cases per million residents in the US as of {as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)} "))
+  Label_placeholder <- glue("There were {value} {measure} reported in the US on {date_string}",
+               #This looks like a lot, but is just saying if the measure is per million, round to 2 decimals, otherwise
+               #round to 0 decimals. In addition, I am adding a comma every three numbers with prettyNum
+               value = if_else(condition = str_detect(True_Measure,'Million'), 
+                               true = prettyNum(round(New_Cases,2),big.mark=','),
+                               false = prettyNum(round(New_Cases,0),big.mark=',')),
+               #This is just taking the measure that matches the column name and making it look pretty 
+               measure = True_Measure %>%
+                 str_replace_all('_',' ') %>% 
+                 str_to_lower(),
+               #Just getting the date in Month, day, Year format
+               date_string = glue("{as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}"))
   
-  #Adding death labels
-  Data <- Data %>% 
-    mutate(Label_New_Deaths=glue("There were {prettyNum(round(New_Deaths,0),big.mark=',')} new deaths reported in the US on {as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}"),
-           Label_New_Deaths_Per_Million=glue("There were {prettyNum(round(New_Deaths_Per_Million,0),big.mark=',')} new deaths per million residents reported in the US on {as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}"),
-           Label_Deaths=glue("There were {prettyNum(round(Deaths,0),big.mark=',')} cumulative deaths in the US as of {as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}"),
-           Label_Deaths_Per_Million=glue("There were {prettyNum(round(Deaths_Per_Million,0),big.mark=',')} cumulative deaths per million residents in the US as of {as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}"))
-  
-  
+  Data <- Data %>% mutate(Label=Label_placeholder)
+  #This is hacky. In the geom_col I have to use aes_string to use Up_or_Down_Measure for the color and fill.
+  #Those are both just characters, aes_string makes them be understood as columns. Label is the column, but if I 
+  #put that in aes_string() R looks for an object called Label. So I will make Label_string object that is "Label"
+  #which aes_string will recognize.
+  Label_string <- "Label"
   
   # Plotting ----------------------------------------------------------------
   if (str_detect(True_Measure,"New")) {
     ggplot(Data, aes_string(x="Date",y=True_Measure)) +
-      geom_col(aes_string(text=paste("Label_",True_Measure,sep=""),
+      geom_col(aes_string(text=Label_string,
                           fill=Up_or_Down_Measure,color=Up_or_Down_Measure), alpha=.7) +
       geom_line(aes_string(y=paste(True_Measure,"_Avg",sep="")),lwd=1) +
       scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), 
@@ -140,7 +145,7 @@ national_graph <- function(Data,
     ggplot(Data, aes_string(x="Date",y=True_Measure)) +
       geom_area(fill=color_var) +
       geom_line(color="black") +
-      geom_line(aes_string(text=paste("Label_",True_Measure,sep=""))) +
+      geom_line(aes(text=Label)) +
       scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
       scale_y_continuous(expand = c(0,0),label = comma) +
       scale_fill_viridis_c(option = "plasma", label = comma) +
