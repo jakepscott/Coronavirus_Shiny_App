@@ -89,7 +89,8 @@ county_graph <- function(Data,
                                         str_replace_all('_',' ') %>% 
                                         str_to_lower(),
                                       #Just getting the date in Month, day, Year format
-                                      date_string = glue("{as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}")))
+                                      date_string = glue("{as.character(month(Date, label = T,abbr = F))} \\
+                                                         {day(Date)}, {year(Date)}")))
   
   
   
