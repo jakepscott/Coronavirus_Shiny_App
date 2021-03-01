@@ -91,14 +91,11 @@ national_graph <- function(Data,
                               str_to_lower(),
                             #Just getting the date in Month, day, Year format
                             date_string = glue("{as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}")))
-  #This is hacky. In the geom_col I have to use aes_string to use Up_or_Down_Measure for the color and fill.
-  #Those are both just characters, aes_string makes them be understood as columns. Label is the column, but if I 
-  #put that in aes_string() R looks for an object called Label. So I will make Label_string object that is "Label"
-  #which aes_string will recognize.
+
 
   # Plotting ----------------------------------------------------------------
   if (str_detect(True_Measure,"New")) {
-    ggplot(Data, aes_string(x="Date",y=True_Measure)) +
+    ggplot(Data, aes(x=Date,y=get(True_Measure))) +
       geom_col(aes(text=Label,
                    fill=get(Up_or_Down_Measure),
                    color=get(Up_or_Down_Measure)), 
