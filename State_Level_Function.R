@@ -84,42 +84,23 @@ True_Measure <- if (per_million==T) {
                                   last(Increasing_or_Decreasing$Deaths_Up_or_Down))
   
   # Making Labels for all the cases/deaths variables ------------------------
-  Data <- Data %>% 
-    mutate(Label_New_Cases=paste("There were ",round(New_Cases,0), " new cases reported in ",
-                                 State, " on ", as.character(month(Date, label = T,abbr = F)),
-                                 " ", day(Date), ", ", year(Date),sep=""),
-           Label_New_Cases_Per_Million=paste("There were ",round(New_Cases_Per_Million,0), " new cases per million residents reported in ",
-                                             State, " on ", as.character(month(Date, label = T,abbr = F)),
-                                             " ", day(Date), ", ", year(Date),sep=""),
-           Label_Cases=paste("There were ", round(Cases,0), " cumulative cases in ",
-                             State, " as of ", as.character(month(Date, label = T,abbr = F)),
-                             " ", day(Date), ", ", year(Date),sep=""),
-           Label_Cases_Per_Million=paste("There were ", round(Cases_Per_Million,0), " cumulative cases per million residents in ",
-                                         State," as of ", as.character(month(Date, label = T,abbr = F)),
-                                         " ", day(Date), ", ", year(Date), ",", sep=""))
-  
-  #Adding death labels
-  Data <- Data %>% 
-    mutate(Label_New_Deaths=paste("There were ", round(New_Deaths,0), " new deaths reported in ",
-                                  State, " on ", as.character(month(Date, label = T,abbr = F)),
-                                  " ", day(Date), ", ", year(Date), ",", sep=""),
-           Label_New_Deaths_Per_Million=paste("There were ", round(New_Deaths_Per_Million,0), " new deaths per million residents reported in ",
-                                              State, " on ", as.character(month(Date, label = T,abbr = F)),
-                                              " ", day(Date), ", ", year(Date), ",", sep=""),
-           Label_Deaths=paste("There were ", round(Deaths,0), " cumulative deaths in ",
-                              State," as of ", as.character(month(Date, label = T,abbr = F)),
-                              " ", day(Date), ", ", year(Date), sep=""),
-           Label_Deaths_Per_Million=paste("There were ", round(Deaths_Per_Million,0), " cumulative deaths per million residents in ",
-                                          State," as of ", as.character(month(Date, label = T,abbr = F)),
-                                          " ", day(Date), ", ", year(Date), sep=""))
-  
+  Data <-  Data %>% mutate(Label=glue("There were {value} {measure} reported in {State} on {date_string}",
+                                      #This looks like a lot, but is just saying if the measure is per million, round to 2 decimals, otherwise
+                                      #round to 0 decimals. In addition, I am adding a comma every three numbers with prettyNum
+                                      value = prettyNum(round(get(True_Measure),2),big.mark = ','),
+                                      measure = True_Measure %>%
+                                        str_replace_all('_',' ') %>% 
+                                        str_to_lower(),
+                                      #Just getting the date in Month, day, Year format
+                                      date_string = glue("{as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}")))
   
   
   # Plotting ----------------------------------------------------------------
   if (str_detect(True_Measure,"New")) {
-    ggplot(Data, aes_string(x="Date",y=True_Measure)) +
-      geom_col(aes_string(text=paste("Label_",True_Measure,sep=""),
-                          fill=Up_or_Down_Measure,color=Up_or_Down_Measure), alpha=.7) +
+    ggplot(Data, aes(x=Date,y=get(True_Measure))) +
+      geom_col(aes(text=Label,
+                   fill=get(Up_or_Down_Measure),
+                   color=get(Up_or_Down_Measure)), alpha=.7) +
       geom_line(aes_string(y=paste(True_Measure,"_Avg",sep="")),lwd=1) +
       scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), 
                    guide = guide_axis(check.overlap = T)) +
@@ -156,7 +137,7 @@ True_Measure <- if (per_million==T) {
     color_var <- case_when(str_detect(True_Measure,"Cases")~"#D41804",
                            str_detect(True_Measure,"Deaths")~"grey20")
     
-    ggplot(Data, aes_string(x="Date",y=True_Measure)) +
+    ggplot(Data, aes(x=Date,y=get(True_Measure))) +
       geom_area(fill=color_var) +
       geom_line(color="black") +
       geom_line(aes_string(text=paste("Label_",True_Measure,sep=""))) +
