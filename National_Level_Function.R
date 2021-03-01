@@ -81,31 +81,28 @@ national_graph <- function(Data,
                                   last(Increasing_or_Decreasing$Deaths_Up_or_Down))
   
   # Making Labels for all the cases/deaths variables ------------------------
-  Label_placeholder <- glue("There were {value} {measure} reported in the US on {date_string}",
-               #This looks like a lot, but is just saying if the measure is per million, round to 2 decimals, otherwise
-               #round to 0 decimals. In addition, I am adding a comma every three numbers with prettyNum
-               value = if_else(condition = str_detect(True_Measure,'Million'), 
-                               true = prettyNum(round(New_Cases,2),big.mark=','),
-                               false = prettyNum(round(New_Cases,0),big.mark=',')),
-               #This is just taking the measure that matches the column name and making it look pretty 
-               measure = True_Measure %>%
-                 str_replace_all('_',' ') %>% 
-                 str_to_lower(),
-               #Just getting the date in Month, day, Year format
-               date_string = glue("{as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}"))
   
-  Data <- Data %>% mutate(Label=Label_placeholder)
+  Data <- Data %>% mutate(Label=glue("There were {value} {measure} reported in the US on {date_string}",
+                            #This looks like a lot, but is just saying if the measure is per million, round to 2 decimals, otherwise
+                            #round to 0 decimals. In addition, I am adding a comma every three numbers with prettyNum
+                            value = prettyNum(round(get(True_Measure),2),big.mark = ','),
+                            measure = True_Measure %>%
+                              str_replace_all('_',' ') %>% 
+                              str_to_lower(),
+                            #Just getting the date in Month, day, Year format
+                            date_string = glue("{as.character(month(Date, label = T,abbr = F))} {day(Date)}, {year(Date)}")))
   #This is hacky. In the geom_col I have to use aes_string to use Up_or_Down_Measure for the color and fill.
   #Those are both just characters, aes_string makes them be understood as columns. Label is the column, but if I 
   #put that in aes_string() R looks for an object called Label. So I will make Label_string object that is "Label"
   #which aes_string will recognize.
-  Label_string <- "Label"
-  
+
   # Plotting ----------------------------------------------------------------
   if (str_detect(True_Measure,"New")) {
     ggplot(Data, aes_string(x="Date",y=True_Measure)) +
-      geom_col(aes_string(text=Label_string,
-                          fill=Up_or_Down_Measure,color=Up_or_Down_Measure), alpha=.7) +
+      geom_col(aes(text=Label,
+                   fill=get(Up_or_Down_Measure),
+                   color=get(Up_or_Down_Measure)), 
+               alpha=.7) +
       geom_line(aes_string(y=paste(True_Measure,"_Avg",sep="")),lwd=1) +
       scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), 
                    guide = guide_axis(check.overlap = T)) +
