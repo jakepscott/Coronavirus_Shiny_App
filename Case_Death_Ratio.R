@@ -101,27 +101,31 @@ girafe(
 
 
 # bar plot ----------------------------------------------------------------
-Ratio_Bar <- NY %>% 
+(Ratio_Bar <- plot_data %>% 
   filter(Cases!=0,
          Deaths!=0) %>% 
   ggplot(aes(fct_reorder(County,Deaths_per_Case),Deaths_per_Case)) +
   geom_col_interactive(aes(tooltip=glue("{County} County, Since January 1, 2020
                                           % of Cases Resulting in Death: {round(Deaths_per_Case,2)}%"),
-                           data_id=County,
+                           data_id=fips,
                            fill=Deaths_per_Case)) +
   scale_fill_viridis_c(option = "inferno") + 
   labs(x=NULL,
        y=NULL) +
   coord_flip() +
   theme_minimal() +
-  theme(panel.grid = element_blank())
+  theme(panel.grid = element_blank(),
+        legend.position = "top"))
 
 girafe(
   ggobj = Ratio_Bar
 )
 
+
+# Interactively Join Scatter and Bar --------------------------------------
 Full_Plot <- Ratio_Scatter + Ratio_Bar
-Full_Plot
+
+
 girafe(
   ggobj = Full_Plot
 )
@@ -129,23 +133,36 @@ girafe(
 
 
 # Map ---------------------------------------------------------------------
-Map_Plot <- NY_Counties_SF %>% 
+#Get map data
+US_Data_Agg_SF <-   tigris::geo_join(spatial_data = Counties,
+                                     data_frame = plot_data, 
+                                     by_sp = "GEOID",
+                                     by_df = "fips") %>% 
+  filter(State==state_choice)
+
+(Map_Plot <- US_Data_Agg_SF %>% 
   ggplot() +
   geom_sf_interactive(aes(fill=Deaths_per_Case,
                           tooltip=glue("{County} County
                                           % of Cases Resulting in Death: {round(Deaths_per_Case,2)}%"),
-                          data_id=County),
+                          data_id=GEOID),
                       size = 0.2, 
                       color = "black",
                       show.legend=F) +
   scale_fill_viridis_c(option = "inferno") + 
-  theme_void()
+  theme_void())
 
 girafe(
   ggobj = Map_Plot
 )
 
-Map_and_Bar <- Ratio_Bar + Map_Plot
+
+# Join Map, bar, and scatter ----------------------------------------------
+
+(Map_and_Bar <- Ratio_Bar + Map_Plot + 
+   plot_layout(guides = 'collect') & 
+   theme(legend.position = 'top') &
+   guides(guides(fill = guide_colourbar(title.position="top", title.hjust = 0.5))))
 
 girafe(
   ggobj = Map_and_Bar
