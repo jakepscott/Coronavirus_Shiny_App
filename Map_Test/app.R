@@ -37,21 +37,18 @@ ui <- fluidPage(
     sidebarLayout(
         sidebarPanel(selectInput("statenameformap","State", choices=state.name),
                      selectInput("map_measure", "Measure", 
-                                 choices = c("New Cases"="New_Cases", "New Deaths"="New_Deaths",
+                                 choices = c("New Cases"="New_Cases", 
+                                             "New Deaths"="New_Deaths",
                                              "Total Cases"="Cases",
                                              "Total Deaths"="Deaths",
-                                             "New Cases Per Million" = "New_Cases_Per_Million",
-                                             "New Deaths Per Million" = "New_Deaths_Per_Million",
-                                             "7-Day Average of New Cases" = "New_Cases_Avg",
-                                             "7-Day Average of New Deaths" = "New_Deaths_Avg",
-                                             "7-Day Average of New Cases Per Million" = "New_Cases_Avg",
-                                             "7-Day Average of New Per Million" = "New_Deaths_Avg",
                                              "Cases to Population Ratio" = "Case_Ratio",
                                              "Deaths to Population Ratio" = "Death_Ratio",
                                              "Percent of Cases Resulting in Death" = "Deaths_per_Case"),
                                  selected = "Percent of Cases Resulting in Death"),
                      dateInput("map_date", "Date:", value = Sys.Date()-1,
-                               min = "2020-01-22", max = Sys.Date()-1)
+                               min = "2020-01-22", max = Sys.Date()-1),
+                     checkboxInput("PerMilMap", "Per Million Residents",FALSE),
+                     checkboxInput("RollingAvgMap", "Mean Over Last 7 Days",FALSE)
                      
         ),
         
@@ -69,7 +66,9 @@ server <- function(input, output) {
     US_Data <- reactive(US_Data_Raw %>% 
         #keep only selected state
         filter(state==input$statenameformap,
-               date>=input$map_date-7 & date<=input$map_date) %>% # This filters the data to just be the seven days leading up to the date of interest, so we can get the 7 day rolling average
+               date>=input$map_date-7 & date<=input$map_date,
+               county!="Unknown",
+               !str_detect(county,"Aleutians West")) %>% # This filters the data to just be the seven days leading up to the date of interest, so we can get the 7 day rolling average
         #Add state names
     left_join(State_Names, by=c("state")) %>% 
         #Add state pops
@@ -112,19 +111,19 @@ server <- function(input, output) {
     #Make labels for tooltip
         mutate(#Labels for cases: total, total per million, new, new per million, new on average, new on average per million
             Cases_Label=glue("{prettyNum(round(Cases,0),big.mark = ',',big.interval = 3)} total cases were reported in {County} County as of {input$map_date}"),
-            Cases_Per_Million_Label=glue("{prettyNum(round(Cases_Per_Million,0),big.mark = ',',big.interval = 3)} cases per million residents were reported in {County} County as of {input$map_date}"),
+            Cases_Per_Million_Label=glue("{prettyNum(round(Cases_Per_Million,2),big.mark = ',',big.interval = 3)} cases per million residents were reported in {County} County as of {input$map_date}"),
             New_Cases_Label=glue("{prettyNum(round(New_Cases,0),big.mark = ',',big.interval = 3)} new cases were reported in {County} County on {input$map_date}"),
-            New_Cases_Avg_Label=glue("{prettyNum(round(New_Cases_Avg,0),big.mark = ',',big.interval = 3)} new cases were reported on average in {County} County for the week ending on {input$map_date}"),
-            New_Cases_Per_Million_Label=glue("{prettyNum(round(New_Cases_Per_Million,0),big.mark = ',',big.interval = 3)} new cases per million residents reported in {County} County on {input$map_date}"),
-            New_Cases_Per_Million_Avg_Label=glue("{prettyNum(round(New_Cases_Per_Million_Avg,0),big.mark = ',',big.interval = 3)} new cases were per million residents on average reported in {County} County for the week ending on {input$map_date}"),
+            New_Cases_Avg_Label=glue("{prettyNum(round(New_Cases_Avg,2),big.mark = ',',big.interval = 3)} new cases were reported on average in {County} County for the week ending on {input$map_date}"),
+            New_Cases_Per_Million_Label=glue("{prettyNum(round(New_Cases_Per_Million,2),big.mark = ',',big.interval = 3)} new cases per million residents reported in {County} County on {input$map_date}"),
+            New_Cases_Per_Million_Avg_Label=glue("{prettyNum(round(New_Cases_Per_Million_Avg,2),big.mark = ',',big.interval = 3)} new cases per million residents on average reported in {County} County for the week ending on {input$map_date}"),
             
             #Labels for deaths: total, total per million, new, new per million, new on average, new on average per million
             Deaths_Label=glue("{prettyNum(round(Deaths,0),big.mark = ',',big.interval = 3)} total deaths were reported in {County} County as of {input$map_date}"),
-            Deaths_Per_Million_Label=glue("{prettyNum(round(Deaths_Per_Million,0),big.mark = ',',big.interval = 3)} deaths per million residents were reported in {County} County as of {input$map_date}"),
+            Deaths_Per_Million_Label=glue("{prettyNum(round(Deaths_Per_Million,2),big.mark = ',',big.interval = 3)} deaths per million residents were reported in {County} County as of {input$map_date}"),
             New_Deaths_Label=glue("{prettyNum(round(New_Deaths,0),big.mark = ',',big.interval = 3)} new deaths were reported in {County} County on {input$map_date}"),
-            New_Deaths_Avg_Label=glue("{prettyNum(round(New_Deaths_Avg,0),big.mark = ',',big.interval = 3)} new deaths were reported on average in {County} County for the week ending on {input$map_date}"),
-            New_Deaths_Per_Million_Label=glue("{prettyNum(round(New_Deaths_Per_Million,0),big.mark = ',',big.interval = 3)} new deaths per million residents reported in {County} County on {input$map_date}"),
-            New_Deaths_Per_Million_Avg_Label=glue("{prettyNum(round(New_Deaths_Per_Million_Avg,0),big.mark = ',',big.interval = 3)} new deaths were per million residents on average reported in {County} County for the week ending on {input$map_date}"),
+            New_Deaths_Avg_Label=glue("{prettyNum(round(New_Deaths_Avg,2),big.mark = ',',big.interval = 3)} new deaths were reported on average in {County} County for the week ending on {input$map_date}"),
+            New_Deaths_Per_Million_Label=glue("{prettyNum(round(New_Deaths_Per_Million,2),big.mark = ',',big.interval = 3)} new deaths per million residents reported in {County} County on {input$map_date}"),
+            New_Deaths_Per_Million_Avg_Label=glue("{prettyNum(round(New_Deaths_Per_Million_Avg,2),big.mark = ',',big.interval = 3)} new deaths per million residents on average reported in {County} County for the week ending on {input$map_date}"),
             
             #Labels for ratios
             Case_Ratio_Label=glue("{prettyNum(round(Case_Ratio,2),big.mark = ',',big.interval = 3)} is the ratio of case share to population share in {County} County as of {input$map_date}"),
@@ -134,9 +133,50 @@ server <- function(input, output) {
     
 
     output$bar_and_map <- renderGirafe({
+
+# Set the Measure ---------------------------------------------------------
         measure <- input$map_measure
+        
+        #If the measure is new cases, check whether it should be rolling aversge and/or per million
+        if (measure == "New_Cases") {
+            if (input$PerMilMap & input$RollingAvgMap) {
+                measure <- "New_Cases_Per_Million_Avg"
+            } else if (input$PerMilMap) {
+                measure <- "New_Cases_Per_Million"
+            } else if (input$RollingAvgMap) {
+                measure <- "New_Cases_Avg"
+            } else {
+                measure <- "New_Cases"
+            }
+        }
+        
+        #If the measure is cases, check if it should be per million
+        if (measure == "Cases") {
+            measure <- ifelse(input$PerMilMap,"Cases_Per_Million","Cases")
+        }
+        
+        #If the measure is new deaths, check whether it should be rolling aversge and/or per million
+        if (measure == "New_Deaths") {
+            if (input$PerMilMap & input$RollingAvgMap) {
+                measure <- "New_Deaths_Per_Million_Avg"
+            } else if (input$PerMilMap) {
+                measure <- "New_Deaths_Per_Million"
+            } else if (input$RollingAvgMap) {
+                measure <- "New_Deaths_Avg"
+            } else {
+                measure <- "New_Deaths"
+            }
+        }
+        
+        #If the measure is deaths, check if it should be per million
+        if (measure == "Deaths") {
+            measure <- ifelse(input$PerMilMap,"Deaths_Per_Million","Deaths")
+        }
+        
+
+        # Plot the bar graph------------------------------------------------------------
         Ratio_Bar <- US_Data() %>% 
-             filter(!!as.symbol(measure)>0) %>% 
+             #filter(!!as.symbol(measure)>0) %>% 
              slice_max(order_by = !!as.symbol(measure), n = 30) %>% 
              ggplot(aes(fct_reorder(County,!!as.symbol(measure)),y = !!as.symbol(measure))) +
              geom_col_interactive(aes(tooltip=!!as.symbol(glue("{measure}_Label")),
@@ -151,7 +191,8 @@ server <- function(input, output) {
              theme_minimal(base_size = 12) +
              theme(panel.grid = element_blank(),
                    legend.position = "bottom",
-                   axis.text.y = element_text(size=rel(.5)))
+                   axis.text.y = element_text(size=rel(.5)),
+                   plot.title.position = "plot")
         
         
         # Map ---------------------------------------------------------------------
@@ -177,7 +218,7 @@ server <- function(input, output) {
         
         Map_and_Bar <- Ratio_Bar + Map_Plot + 
              plot_layout(guides = 'collect') & 
-             theme(legend.position = 'top') &
+             theme(legend.position = 'bottom') &
              guides(guides(fill = guide_colourbar(title.position="top", title.hjust = 0.5)))
         
         girafe(
