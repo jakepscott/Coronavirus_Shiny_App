@@ -120,11 +120,13 @@ measure <- "Cases_Per_Million"
                             fill=!!as.symbol(measure))) +
    scale_fill_viridis_c(option = "inferno") + 
    labs(x=NULL,
-        y=NULL) +
+        y=NULL,
+        fill=str_replace(measure,"_"," ")) +
    coord_flip() +
-   theme_minimal() +
+   theme_minimal(base_size = 12) +
    theme(panel.grid = element_blank(),
-         legend.position = "top"))
+         legend.position = "top",
+         axis.text.y = element_text(size=rel(.5))))
 
 girafe(
   ggobj = Ratio_Bar
