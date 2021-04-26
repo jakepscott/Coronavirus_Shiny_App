@@ -9,6 +9,7 @@ library(lubridate)
 library(zoo)
 library(sf)
 library(here)
+tic()
 # Load in Data ------------------------------------------------------
 #Read in state names and fips
 State_Names <- read_rds("data/State_Names.RDS") %>% mutate(state_fips=usmap::fips(state))
@@ -106,7 +107,7 @@ US_Data_Agg <- US_Data_Agg %>%
          Death_Ratio_Label=glue("{prettyNum(round(Death_Ratio,2),big.mark = ',',big.interval = 3)} is the ratio of death share to population share in {County} County as of {date_choice}"),
          Deaths_per_Case_Label=glue("{round(Deaths_per_Case,2)}% percent of cases resulted in death in {County} County as of {date_choice}")
          )
-
+toc()
 # Choose Measure Parameter ------------------------------------------------
 measure <- "Cases_Per_Million"
 
