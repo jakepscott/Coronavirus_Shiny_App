@@ -12,6 +12,7 @@ library(here)
 library(shinythemes)
 library(shinycssloaders)
 library(shinyalert)
+library(shinyjs)
 
 # Load in Data ------------------------------------------------------
 #Read in state names and fips
@@ -34,6 +35,7 @@ library(shiny)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+    useShinyjs(),
     sidebarLayout(
         sidebarPanel(selectInput("statenameformap","State", choices=state.name),
                      selectInput("map_measure", "Measure", 
@@ -131,10 +133,22 @@ server <- function(input, output) {
             Deaths_per_Case_Label=glue("{round(Deaths_per_Case,2)}% percent of cases resulted in death in {County} County as of {input$map_date}")
         ))
     
-
+    #This disables the per million and rolling mean checkboxes if a relevant measure isn't selected.
+    # So they are enabled if the user selects New Cases, but they are disabled if the user selects
+    # Case_Ratio
+    observe({
+        shinyjs::toggleState(id = "PerMilMap", condition = input$map_measure %in% c("New_Cases",
+                                                                                    "New_Deaths",
+                                                                                    "Cases",
+                                                                                    "Deaths"))
+        shinyjs::toggleState(id = "RollingAvgMap", condition = input$map_measure %in% c("New_Cases",
+                                                                                    "New_Deaths",
+                                                                                    "Cases",
+                                                                                    "Deaths"))
+    })
+    
     output$bar_and_map <- renderGirafe({
-
-# Set the Measure ---------------------------------------------------------
+        # Set the Measure ---------------------------------------------------------
         measure <- input$map_measure
         
         #If the measure is new cases, check whether it should be rolling aversge and/or per million
