@@ -30,6 +30,7 @@ Counties <- read_sf(here('data/cb_2018_us_county_20m/cb_2018_us_county_20m.shp')
 # Clean and Wrangle Data --------------------------------------------------
 #Add state names and pop data to NYT Data
 US_Data <- US_Data_Raw %>% 
+  filter(date==as.Date("2021-04-24")) %>% 
   #keep only states I can map
   filter(state %in% State_Names$state | state=="District of Columbia") %>%
   #Add state names 
@@ -76,7 +77,7 @@ US_Data_Agg <- US_Data %>%
 
 
 # Choose State ------------------------------------------------------------
-state_choice="New York"
+state_choice="Florida"
 
 plot_data <- US_Data_Agg %>% filter(State==state_choice)
 
