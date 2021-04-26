@@ -6,7 +6,7 @@ county_pop_clean <- read_rds("data/county_pop_clean.RDS")
 state_pop_clean <- read_rds("data/state_pop_clean.RDS")
 
 #Read in cases and deaths data from NYT
-US_Data_Raw <- read_csv(url("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"))
+US_Data_Raw <- vroom(url("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"))
 
 #Add state names and pop data to NYT Data
 US_Data <- left_join(US_Data_Raw,State_Names, by=c("state")) %>% 
