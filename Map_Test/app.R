@@ -117,7 +117,7 @@ server <- function(input, output) {
             New_Cases_Label=glue("{prettyNum(round(New_Cases,0),big.mark = ',',big.interval = 3)} new cases were reported in {County} County on {input$map_date}"),
             New_Cases_Average_Label=glue("{prettyNum(round(New_Cases_Average,2),big.mark = ',',big.interval = 3)} new cases were reported on average in {County} County for the week ending on {input$map_date}"),
             New_Cases_Per_Million_Label=glue("{prettyNum(round(New_Cases_Per_Million,2),big.mark = ',',big.interval = 3)} new cases per million residents were reported in {County} County on {input$map_date}"),
-            New_Cases_Per_Million_Average_Label=glue("{prettyNum(round(New_Cases_Per_Million_Average,2),big.mark = ',',big.interval = 3)} new cases per million residents on average were reported in {County} County for the week ending on {input$map_date}"),
+            New_Cases_Per_Million_Average_Label=glue("{prettyNum(round(New_Cases_Per_Million_Average,2),big.mark = ',',big.interval = 3)} new cases per million residents on average were reported \nin {County} County for the week ending on {input$map_date}"),
             
             #Labels for deaths: total, total per million, new, new per million, new on average, new on average per million
             Deaths_Label=glue("{prettyNum(round(Deaths,0),big.mark = ',',big.interval = 3)} total deaths were reported in {County} County as of {input$map_date}"),
@@ -125,7 +125,7 @@ server <- function(input, output) {
             New_Deaths_Label=glue("{prettyNum(round(New_Deaths,0),big.mark = ',',big.interval = 3)} new deaths were reported in {County} County on {input$map_date}"),
             New_Deaths_Average_Label=glue("{prettyNum(round(New_Deaths_Average,2),big.mark = ',',big.interval = 3)} new deaths were reported on average in {County} County for the week ending on {input$map_date}"),
             New_Deaths_Per_Million_Label=glue("{prettyNum(round(New_Deaths_Per_Million,2),big.mark = ',',big.interval = 3)} new deaths per million residents were reported in {County} County on {input$map_date}"),
-            New_Deaths_Per_Million_Average_Label=glue("{prettyNum(round(New_Deaths_Per_Million_Average,2),big.mark = ',',big.interval = 3)} new deaths per million residents on average were reported in {County} County for the week ending on {input$map_date}"),
+            New_Deaths_Per_Million_Average_Label=glue("{prettyNum(round(New_Deaths_Per_Million_Average,2),big.mark = ',',big.interval = 3)} new deaths per million residents on average were reported \nin {County} County for the week ending on {input$map_date}"),
             
             #Labels for ratios
             Case_Ratio_Label=glue("{prettyNum(round(Case_Ratio,2),big.mark = ',',big.interval = 3)} is the ratio of percent of cases reported in {County} County divided by the county's share of the state population"),
@@ -142,9 +142,7 @@ server <- function(input, output) {
                                                                                     "Cases",
                                                                                     "Deaths"))
         shinyjs::toggleState(id = "RollingAvgMap", condition = input$map_measure %in% c("New_Cases",
-                                                                                    "New_Deaths",
-                                                                                    "Cases",
-                                                                                    "Deaths"))
+                                                                                    "New_Deaths"))
     })
     
     output$bar_and_map <- renderGirafe({
@@ -238,7 +236,15 @@ server <- function(input, output) {
              guides(guides(fill = guide_colourbar(title.position="top", title.hjust = 0.5)))
         
         girafe(
-            ggobj = Map_and_Bar
+            ggobj = Map_and_Bar,
+            options = list(
+                # opts_tooltip(
+                #     css = "background: black; color: white;"
+                # ),
+                opts_hover(
+                    css = "fill: red;"
+            )
+        )
         )
     })
 }
