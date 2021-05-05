@@ -141,7 +141,7 @@ server <- function(input, output) {
                                  Deaths_per_Case_Label=glue("{round(Deaths_per_Case,2)}% of cases resulted in death in {County} County as of {input$map_date}")
                              )
                      })
-    })
+    }) %>%  bindCache(input$statenameformap, input$map_date, Sys.Date())
     
     #This disables the per million and rolling mean checkboxes if a relevant measure isn't selected.
     # So they are enabled if the user selects New Cases, but they are disabled if the user selects
@@ -156,77 +156,81 @@ server <- function(input, output) {
     })
     
     output$bar_and_map <- renderGirafe({
-        # Set the Measure ---------------------------------------------------------
-        measure <- input$map_measure
-        
-        #If the measure is new cases, check whether it should be rolling aversge and/or per million
-        if (measure == "New_Cases") {
-            if (input$PerMilMap & input$RollingAvgMap) {
-                measure <- "New_Cases_Per_Million_Average"
-            } else if (input$PerMilMap) {
-                measure <- "New_Cases_Per_Million"
-            } else if (input$RollingAvgMap) {
-                measure <- "New_Cases_Average"
-            } else {
-                measure <- "New_Cases"
+        withProgress(message = "Making plots",{
+            
+            # Set the Measure ---------------------------------------------------------
+            measure <- input$map_measure
+            
+            #If the measure is new cases, check whether it should be rolling aversge and/or per million
+            if (measure == "New_Cases") {
+                if (input$PerMilMap & input$RollingAvgMap) {
+                    measure <- "New_Cases_Per_Million_Average"
+                } else if (input$PerMilMap) {
+                    measure <- "New_Cases_Per_Million"
+                } else if (input$RollingAvgMap) {
+                    measure <- "New_Cases_Average"
+                } else {
+                    measure <- "New_Cases"
+                }
             }
-        }
-        
-        #If the measure is cases, check if it should be per million
-        if (measure == "Cases") {
-            measure <- ifelse(input$PerMilMap,"Cases_Per_Million","Cases")
-        }
-        
-        #If the measure is new deaths, check whether it should be rolling aversge and/or per million
-        if (measure == "New_Deaths") {
-            if (input$PerMilMap & input$RollingAvgMap) {
-                measure <- "New_Deaths_Per_Million_Average"
-            } else if (input$PerMilMap) {
-                measure <- "New_Deaths_Per_Million"
-            } else if (input$RollingAvgMap) {
-                measure <- "New_Deaths_Average"
-            } else {
-                measure <- "New_Deaths"
+            
+            #If the measure is cases, check if it should be per million
+            if (measure == "Cases") {
+                measure <- ifelse(input$PerMilMap,"Cases_Per_Million","Cases")
             }
-        }
-        
-        #If the measure is deaths, check if it should be per million
-        if (measure == "Deaths") {
-            measure <- ifelse(input$PerMilMap,"Deaths_Per_Million","Deaths")
-        }
-        
-
-        # Plot the bar graph------------------------------------------------------------
-        Ratio_Bar <- US_Data() %>% 
-             filter(!!as.symbol(measure)>0) %>% 
-             slice_max(order_by = !!as.symbol(measure), n = 30) %>% 
-             ggplot(aes(fct_reorder(County,!!as.symbol(measure)),y = !!as.symbol(measure))) +
-             geom_col_interactive(aes(tooltip=!!as.symbol(glue("{measure}_Label")),
-                                      data_id=fips,
-                                      fill=!!as.symbol(measure)),
-                                  show.legend=F) +
-             scale_fill_viridis_c(option = "plasma") + 
-             labs(x=NULL,
-                  y=NULL,
-                  fill=str_replace_all(measure,"_"," "),
-                  title=glue("Top counties by {str_replace_all(measure,'_',' ')}")) +
-             coord_flip() +
-             theme_minimal(base_size = 12) +
-             theme(panel.grid = element_blank(),
-                   legend.position = "bottom",
-                   axis.text.y = element_text(size=rel(.5)),
-                   plot.title.position = "plot")
-        
-        
-        # Map ---------------------------------------------------------------------
-        #Get map data
-        US_Data_Agg_SF <-   tigris::geo_join(spatial_data = Counties,
-                                             data_frame = US_Data(), 
-                                             by_sp = "GEOID",
-                                             by_df = "fips") %>% 
-            filter(State==input$statenameformap)
-        
-        Map_Plot <- US_Data_Agg_SF %>% 
+            
+            #If the measure is new deaths, check whether it should be rolling aversge and/or per million
+            if (measure == "New_Deaths") {
+                if (input$PerMilMap & input$RollingAvgMap) {
+                    measure <- "New_Deaths_Per_Million_Average"
+                } else if (input$PerMilMap) {
+                    measure <- "New_Deaths_Per_Million"
+                } else if (input$RollingAvgMap) {
+                    measure <- "New_Deaths_Average"
+                } else {
+                    measure <- "New_Deaths"
+                }
+            }
+            
+            #If the measure is deaths, check if it should be per million
+            if (measure == "Deaths") {
+                measure <- ifelse(input$PerMilMap,"Deaths_Per_Million","Deaths")
+            }
+            
+            
+            # Plot the bar graph------------------------------------------------------------
+            incProgress(amount = 1/4, message = "Making bar plot")
+            Ratio_Bar <- US_Data() %>% 
+                filter(!!as.symbol(measure)>0) %>% 
+                slice_max(order_by = !!as.symbol(measure), n = 30) %>% 
+                ggplot(aes(fct_reorder(County,!!as.symbol(measure)),y = !!as.symbol(measure))) +
+                geom_col_interactive(aes(tooltip=!!as.symbol(glue("{measure}_Label")),
+                                         data_id=fips,
+                                         fill=!!as.symbol(measure)),
+                                     show.legend=F) +
+                scale_fill_viridis_c(option = "plasma") + 
+                labs(x=NULL,
+                     y=NULL,
+                     fill=str_replace_all(measure,"_"," "),
+                     title=glue("Top counties by {str_replace_all(measure,'_',' ')}")) +
+                coord_flip() +
+                theme_minimal(base_size = 12) +
+                theme(panel.grid = element_blank(),
+                      legend.position = "bottom",
+                      axis.text.y = element_text(size=rel(.5)),
+                      plot.title.position = "plot")
+            
+            
+            # Map ---------------------------------------------------------------------
+            #Get map data
+            incProgress(amount = 2/4, message = "Making map")
+            US_Data_Agg_SF <-   tigris::geo_join(spatial_data = Counties,
+                                                 data_frame = US_Data(), 
+                                                 by_sp = "GEOID",
+                                                 by_df = "fips") %>% 
+                filter(State==input$statenameformap)
+            
+            Map_Plot <- US_Data_Agg_SF %>% 
                 ggplot() +
                 geom_sf_interactive(aes(tooltip=!!as.symbol(glue("{measure}_Label")),
                                         data_id=GEOID,
@@ -237,25 +241,25 @@ server <- function(input, output) {
                 labs(fill=glue("{str_replace_all(measure,'_',' ')}")) +
                 theme_void(base_size = 12) +
                 theme(legend.text = element_text(size = rel(.5)))
-        
-        # Join Map, bar, and scatter ----------------------------------------------
-        
-        Map_and_Bar <- Ratio_Bar + Map_Plot + 
-             plot_layout(guides = 'collect') & 
-             theme(legend.position = 'bottom') &
-             guides(guides(fill = guide_colourbar(title.position="top", title.hjust = 0.5)))
-        
-        girafe(
-            ggobj = Map_and_Bar,
-            options = list(
-                # opts_tooltip(
-                #     css = "background: black; color: white;"
-                # ),
-                opts_hover(
-                    css = "fill: red;"
+            
+            # Join Map, bar, and scatter ----------------------------------------------
+            Map_and_Bar <- Ratio_Bar + Map_Plot + 
+                plot_layout(guides = 'collect') & 
+                theme(legend.position = 'bottom') &
+                guides(guides(fill = guide_colourbar(title.position="top", title.hjust = 0.5)))
+            incProgress(amount = 3/4, message = "Joining plots and making interactive")
+            girafe(
+                ggobj = Map_and_Bar,
+                options = list(
+                    # opts_tooltip(
+                    #     css = "background: black; color: white;"
+                    # ),
+                    opts_hover(
+                        css = "fill: red;"
+                    )
+                )
             )
-        )
-        )
+        })
     })
 }
 
