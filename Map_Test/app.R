@@ -91,15 +91,15 @@ server <- function(input, output) {
                
                New_Cases=Cases-lag(Cases), ##New cases is today's cases minus yesterdays
                New_Cases=ifelse(New_Cases<0,0,New_Cases), # Set it to zero if it is negative
-               New_Cases_Avg=rollmean(New_Cases,k = 7,fill = NA, align = "right"),
+               New_Cases_Average=rollmean(New_Cases,k = 7,fill = NA, align = "right"),
                New_Cases_Per_Million=(New_Cases/County_Population)*1000000,
-               New_Cases_Per_Million_Avg=(New_Cases_Avg/County_Population)*1000000,
+               New_Cases_Per_Million_Average=(New_Cases_Average/County_Population)*1000000,
                
                New_Deaths=Deaths-lag(Deaths), 
                New_Deaths=ifelse(New_Deaths<0,0,New_Deaths),
-               New_Deaths_Avg=rollmean(New_Deaths,k = 7,fill = NA, align = "right"),
+               New_Deaths_Average=rollmean(New_Deaths,k = 7,fill = NA, align = "right"),
                New_Deaths_Per_Million=(New_Deaths/County_Population)*1000000,
-               New_Deaths_Per_Million_Avg=(New_Deaths_Avg/County_Population)*1000000) %>% 
+               New_Deaths_Per_Million_Average=(New_Deaths_Average/County_Population)*1000000) %>% 
         ungroup() %>% 
     #Keep only date of interest
         filter(Date==as.Date(input$map_date)) %>% 
@@ -115,17 +115,17 @@ server <- function(input, output) {
             Cases_Label=glue("{prettyNum(round(Cases,0),big.mark = ',',big.interval = 3)} total cases were reported in {County} County as of {input$map_date}"),
             Cases_Per_Million_Label=glue("{prettyNum(round(Cases_Per_Million,2),big.mark = ',',big.interval = 3)} cases per million residents were reported in {County} County as of {input$map_date}"),
             New_Cases_Label=glue("{prettyNum(round(New_Cases,0),big.mark = ',',big.interval = 3)} new cases were reported in {County} County on {input$map_date}"),
-            New_Cases_Avg_Label=glue("{prettyNum(round(New_Cases_Avg,2),big.mark = ',',big.interval = 3)} new cases were reported on average in {County} County for the week ending on {input$map_date}"),
+            New_Cases_Average_Label=glue("{prettyNum(round(New_Cases_Average,2),big.mark = ',',big.interval = 3)} new cases were reported on average in {County} County for the week ending on {input$map_date}"),
             New_Cases_Per_Million_Label=glue("{prettyNum(round(New_Cases_Per_Million,2),big.mark = ',',big.interval = 3)} new cases per million residents reported in {County} County on {input$map_date}"),
-            New_Cases_Per_Million_Avg_Label=glue("{prettyNum(round(New_Cases_Per_Million_Avg,2),big.mark = ',',big.interval = 3)} new cases per million residents on average reported in {County} County for the week ending on {input$map_date}"),
+            New_Cases_Per_Million_Average_Label=glue("{prettyNum(round(New_Cases_Per_Million_Average,2),big.mark = ',',big.interval = 3)} new cases per million residents on average reported in {County} County for the week ending on {input$map_date}"),
             
             #Labels for deaths: total, total per million, new, new per million, new on average, new on average per million
             Deaths_Label=glue("{prettyNum(round(Deaths,0),big.mark = ',',big.interval = 3)} total deaths were reported in {County} County as of {input$map_date}"),
             Deaths_Per_Million_Label=glue("{prettyNum(round(Deaths_Per_Million,2),big.mark = ',',big.interval = 3)} deaths per million residents were reported in {County} County as of {input$map_date}"),
             New_Deaths_Label=glue("{prettyNum(round(New_Deaths,0),big.mark = ',',big.interval = 3)} new deaths were reported in {County} County on {input$map_date}"),
-            New_Deaths_Avg_Label=glue("{prettyNum(round(New_Deaths_Avg,2),big.mark = ',',big.interval = 3)} new deaths were reported on average in {County} County for the week ending on {input$map_date}"),
+            New_Deaths_Average_Label=glue("{prettyNum(round(New_Deaths_Average,2),big.mark = ',',big.interval = 3)} new deaths were reported on average in {County} County for the week ending on {input$map_date}"),
             New_Deaths_Per_Million_Label=glue("{prettyNum(round(New_Deaths_Per_Million,2),big.mark = ',',big.interval = 3)} new deaths per million residents reported in {County} County on {input$map_date}"),
-            New_Deaths_Per_Million_Avg_Label=glue("{prettyNum(round(New_Deaths_Per_Million_Avg,2),big.mark = ',',big.interval = 3)} new deaths per million residents on average reported in {County} County for the week ending on {input$map_date}"),
+            New_Deaths_Per_Million_Average_Label=glue("{prettyNum(round(New_Deaths_Per_Million_Average,2),big.mark = ',',big.interval = 3)} new deaths per million residents on average reported in {County} County for the week ending on {input$map_date}"),
             
             #Labels for ratios
             Case_Ratio_Label=glue("{prettyNum(round(Case_Ratio,2),big.mark = ',',big.interval = 3)} is the ratio of case share to population share in {County} County as of {input$map_date}"),
@@ -154,11 +154,11 @@ server <- function(input, output) {
         #If the measure is new cases, check whether it should be rolling aversge and/or per million
         if (measure == "New_Cases") {
             if (input$PerMilMap & input$RollingAvgMap) {
-                measure <- "New_Cases_Per_Million_Avg"
+                measure <- "New_Cases_Per_Million_Average"
             } else if (input$PerMilMap) {
                 measure <- "New_Cases_Per_Million"
             } else if (input$RollingAvgMap) {
-                measure <- "New_Cases_Avg"
+                measure <- "New_Cases_Average"
             } else {
                 measure <- "New_Cases"
             }
@@ -172,11 +172,11 @@ server <- function(input, output) {
         #If the measure is new deaths, check whether it should be rolling aversge and/or per million
         if (measure == "New_Deaths") {
             if (input$PerMilMap & input$RollingAvgMap) {
-                measure <- "New_Deaths_Per_Million_Avg"
+                measure <- "New_Deaths_Per_Million_Average"
             } else if (input$PerMilMap) {
                 measure <- "New_Deaths_Per_Million"
             } else if (input$RollingAvgMap) {
-                measure <- "New_Deaths_Avg"
+                measure <- "New_Deaths_Average"
             } else {
                 measure <- "New_Deaths"
             }
@@ -190,17 +190,18 @@ server <- function(input, output) {
 
         # Plot the bar graph------------------------------------------------------------
         Ratio_Bar <- US_Data() %>% 
-             #filter(!!as.symbol(measure)>0) %>% 
+             filter(!!as.symbol(measure)>0) %>% 
              slice_max(order_by = !!as.symbol(measure), n = 30) %>% 
              ggplot(aes(fct_reorder(County,!!as.symbol(measure)),y = !!as.symbol(measure))) +
              geom_col_interactive(aes(tooltip=!!as.symbol(glue("{measure}_Label")),
                                       data_id=fips,
-                                      fill=!!as.symbol(measure))) +
-             scale_fill_viridis_c(option = "inferno") + 
+                                      fill=!!as.symbol(measure)),
+                                  show.legend=F) +
+             scale_fill_viridis_c(option = "plasma") + 
              labs(x=NULL,
                   y=NULL,
                   fill=str_replace_all(measure,"_"," "),
-                  title=glue("Top 30 counties by {str_replace_all(measure,'_',' ')}")) +
+                  title=glue("Top counties by {str_replace_all(measure,'_',' ')}")) +
              coord_flip() +
              theme_minimal(base_size = 12) +
              theme(panel.grid = element_blank(),
@@ -223,9 +224,9 @@ server <- function(input, output) {
                                         data_id=GEOID,
                                         fill=!!as.symbol(measure)),
                                     size = 0.2, 
-                                    color = "black",
-                                    show.legend=F) +
+                                    color = "black") +
                 scale_fill_viridis_c(option = "inferno") + 
+                labs(fill=glue("{str_replace_all(measure,'_',' ')}")) +
                 theme_void()
         
         # Join Map, bar, and scatter ----------------------------------------------
