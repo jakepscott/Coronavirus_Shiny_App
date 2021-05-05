@@ -227,7 +227,8 @@ server <- function(input, output) {
                                     color = "black") +
                 scale_fill_viridis_c(option = "inferno") + 
                 labs(fill=glue("{str_replace_all(measure,'_',' ')}")) +
-                theme_void()
+                theme_void(base_size = 12) +
+                theme(legend.text = element_text(size = rel(.5)))
         
         # Join Map, bar, and scatter ----------------------------------------------
         
