@@ -141,7 +141,7 @@ True_Measure <- if (per_million==T) {
     ggplot(Data, aes(x=Date,y=get(True_Measure))) +
       geom_area(fill=color_var) +
       geom_line(color="black") +
-      geom_line(aes_string(text=paste("Label_",True_Measure,sep=""))) +
+      geom_line(aes(text=Label)) +
       scale_x_date(expand = c(0,0), breaks = pretty_breaks(n=3, min.n=3), guide = guide_axis(check.overlap = T)) +
       scale_y_continuous(expand = c(0,0),label = comma) +
       scale_fill_viridis_c(option = "plasma", label = comma) +

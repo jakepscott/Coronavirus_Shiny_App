@@ -13,6 +13,7 @@ library(plotly)
 library(shinycssloaders)
 library(shinyalert)
 library(glue)
+library(vroom)
 
 source("County_Level_Function.R")
 source("State_Level_Function.R")
