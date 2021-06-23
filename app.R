@@ -1,5 +1,7 @@
 
 # Libraries ---------------------------------------------------------------
+library(dtplyr)
+library(data.table)
 library(shiny)
 library(tidyverse)
 library(lubridate)
@@ -151,7 +153,7 @@ ui <- fluidPage(
                                  sidebarLayout(
                                    sidebarPanel(dateRangeInput('dateRangeNew',
                                                                label = 'Date range input: yyyy-mm-dd',
-                                                               start = "2020-03-10", end = Sys.Date()-1,
+                                                               start = Sys.Date()-30, end = Sys.Date()-1,
                                                                min = "2020-01-22", max = Sys.Date()-1),
                                                 checkboxInput("PerMilNew", "Per Million Residents",TRUE),
                                                 sliderInput("RollingAverage", 
@@ -172,7 +174,7 @@ ui <- fluidPage(
                                  sidebarLayout(
                                    sidebarPanel(dateRangeInput('dateRangeNewDeaths',
                                                                label = 'Date range input: yyyy-mm-dd',
-                                                               start = "2020-03-10", end = Sys.Date()-1,
+                                                               start = Sys.Date()-30, end = Sys.Date()-1,
                                                                min = "2020-01-22", max = Sys.Date()-1),
                                                 checkboxInput("PerMilNewDeaths", "Per Million Residents",TRUE),
                                                 sliderInput("RollingAverageDeaths", 
@@ -193,7 +195,7 @@ ui <- fluidPage(
                                  sidebarLayout(
                                    sidebarPanel(dateRangeInput('dateRangeTotal',
                                                                label = 'Date range input: yyyy-mm-dd',
-                                                               start = "2020-03-10", end = Sys.Date()-1,
+                                                               start = Sys.Date()-30, end = Sys.Date()-1,
                                                                min = "2020-01-22", max = Sys.Date()-1),
                                                 checkboxInput("PerMil", "Per Million Residents",TRUE)
                                    ),
@@ -208,7 +210,7 @@ ui <- fluidPage(
                                  sidebarLayout(
                                    sidebarPanel(dateRangeInput('dateRangeDeaths',
                                                                label = 'Date range input: yyyy-mm-dd',
-                                                               start = "2020-03-10", end = Sys.Date()-1,
+                                                               start = Sys.Date()-30, end = Sys.Date()-1,
                                                                min = "2020-01-22", max = Sys.Date()-1),
                                                 checkboxInput("PerMilDeaths", "Per Million Residents",TRUE)
                                    ),
@@ -324,7 +326,10 @@ server <- function(input, output) {
     
     ##Plotting
     if (input$PerMil==TRUE) {
-      ggplot(total_cases_data, aes(x=Date,y=cases_per_million)) +
+      total_cases_data %>% 
+        filter(Date>input$dateRangeTotal[1],
+               Date<input$dateRangeTotal[2]) %>% 
+        ggplot(aes(x=Date,y=cases_per_million)) +
         geom_line() +
         geom_area(aes(fill=current_cases_per_million)) +
         facet_geo(~abb) +
@@ -340,7 +345,10 @@ server <- function(input, output) {
         total_facet_theme
         
     } else {
-      ggplot(total_cases_data, aes(x=Date,y=Cases)) +
+      total_cases_data %>% 
+        filter(Date>input$dateRangeTotal[1],
+               Date<input$dateRangeTotal[2]) %>%
+        ggplot(total_cases_data, aes(x=Date,y=Cases)) +
         geom_line() +
         geom_area(aes(fill=current_cases)) +
         facet_geo(~abb) +
@@ -387,8 +395,8 @@ server <- function(input, output) {
     
     if (input$PerMilNew==TRUE) {
       ##Plotting
-      new_cases_data %>% 
-      ggplot(aes(x=Date,y=New_Cases_Per_Million_Avg)) +
+      new_cases_data %>%
+        ggplot(aes(x=Date,y=New_Cases_Per_Million_Avg)) +
         geom_line() +
         facet_geo(~abb) +
         geom_area(aes(fill=Up_or_Down)) +
@@ -457,7 +465,10 @@ server <- function(input, output) {
     
     ##Plotting
     if (input$PerMilDeaths==TRUE) {
-      ggplot(total_deaths_data, aes(x=Date,y=Deaths_Per_Million)) +
+      total_deaths_data %>% 
+        filter(Date>input$dateRangeDeaths[1],
+               Date<input$dateRangeDeaths[2]) %>% 
+        ggplot(total_deaths_data, aes(x=Date,y=Deaths_Per_Million)) +
         geom_line() +
         geom_area(aes(fill=Current_Deaths_Per_Million)) +
         facet_geo(~abb) +
@@ -473,7 +484,10 @@ server <- function(input, output) {
         total_facet_theme
       
     } else {
-      ggplot(total_deaths_data, aes(x=Date,y=Deaths)) +
+      total_deaths_data %>% 
+        filter(Date>input$dateRangeDeaths[1],
+               Date<input$dateRangeDeaths[2]) %>% 
+        ggplot(total_deaths_data, aes(x=Date,y=Deaths)) +
         geom_line() +
         geom_area(aes(fill=Current_Deaths)) +
         facet_geo(~abb) +
